@@ -57,9 +57,4 @@ def fetch_reddit_post(post_url):
         "body": submission.selftext,
         "comments": [comment.body for comment in submission.comments.list()[:10]],  # Fetch top 10 comments
     }
-
-    print("Post Content:")
-    print(f"Title: {post_content['title']}")
-    print(f"Body: {post_content['body']}")
-    print(f"Top Comments: {post_content['comments']}")
     return post_content
