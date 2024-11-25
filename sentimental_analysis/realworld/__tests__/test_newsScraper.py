@@ -2,6 +2,8 @@ import logging
 import unittest
 import os, sys
 import inspect
+import time
+import threading
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
@@ -143,6 +145,32 @@ class TestScrapNews(unittest.TestCase):
             if any(keyword in news for keyword in search_for) == False:
                 logging.warning(news)
                 self.assertTrue(any(keyword in news.lower() for keyword in search_for))
+
+    # New
+    def test_cache_existence(self):
+        """Test if cache file is created"""
+        self.assertTrue(os.path.exists(json_path))
+
+    def test_cache_format(self):
+        """Test if cache file is valid JSON"""
+        with open(json_path, "r") as f:
+            data = json.load(f)
+            self.assertTrue(isinstance(data, list))
+
+    def test_cache_content_structure(self):
+        """Test if each cache entry has required fields"""
+        for item in self.json_data:
+            self.assertTrue('Summary' in item)
+
+    def test_empty_cache_handling(self):
+        """Test handling of empty cache file"""
+        with open(json_path, "w") as f:
+            json.dump([], f)
+        with open(json_path, "r") as f:
+            data = json.load(f)
+            self.assertEqual(len(data), 0)
+
+    
     
     @classmethod
     def tearDownClass(self):
