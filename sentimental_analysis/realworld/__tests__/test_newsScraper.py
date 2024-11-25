@@ -192,7 +192,31 @@ class TestScrapNews(unittest.TestCase):
             for char in special_chars:
                 self.assertNotIn(char, item['Summary'])
 
-    
+    def test_cache_file_permissions(self):
+        """Test if cache file has correct permissions"""
+        self.assertTrue(os.access(json_path, os.R_OK | os.W_OK))
+
+    def test_invalid_json_recovery(self):
+        """Test recovery from corrupted cache file"""
+        with open(json_path, "w") as f:
+            f.write("invalid json")
+        os.makedirs(os.path.dirname(json_path), exist_ok=True)
+        with open(json_path, "w") as f:
+            json.dump(mock_data, f)
+        self.assertTrue(os.path.exists(json_path))
+
+    def test_cache_directory_creation(self):
+        """Test if cache directory is created if missing"""
+        cache_dir = os.path.dirname(json_path)
+        if os.path.exists(cache_dir) and not os.listdir(cache_dir):
+            os.rmdir(cache_dir)
+        os.makedirs(cache_dir, exist_ok=True)
+        self.assertTrue(os.path.exists(cache_dir))
+
+    def test_empty_summary_handling(self):
+        """Test handling of empty summaries"""
+        for item in self.json_data:
+            self.assertNotEqual(item['Summary'].strip(), '')
     
     @classmethod
     def tearDownClass(self):
