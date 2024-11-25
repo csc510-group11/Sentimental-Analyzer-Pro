@@ -217,6 +217,29 @@ class TestScrapNews(unittest.TestCase):
         """Test handling of empty summaries"""
         for item in self.json_data:
             self.assertNotEqual(item['Summary'].strip(), '')
+
+    def test_whitespace_handling(self):
+        """Test handling of excessive whitespace"""
+        for item in self.json_data:
+            self.assertEqual(item['Summary'], item['Summary'].strip())
+            self.assertNotIn('\n', item['Summary'])
+            self.assertNotIn('\t', item['Summary'])
+
+    def test_unicode_handling(self):
+        """Test handling of unicode characters"""
+        for item in self.json_data:
+            self.assertTrue(item['Summary'].encode('utf-8').decode('utf-8'))
+
+    def test_cache_size_limit(self):
+        """Test if cache file size is reasonable"""
+        self.assertLess(os.path.getsize(json_path), 1024 * 1024)  # 1MB limit
+
+    def test_summary_word_count(self):
+        """Test if summaries have reasonable word count"""
+        for item in self.json_data:
+            word_count = len(item['Summary'].split())
+            self.assertGreater(word_count, 10)
+            self.assertLess(word_count, 200)
     
     @classmethod
     def tearDownClass(self):
