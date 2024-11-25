@@ -31,6 +31,7 @@ from spanish_nlp import classifiers
 from django.contrib.auth.decorators import login_required
 from nltk import pos_tag
 from nltk.tokenize import sent_tokenize
+from .cache_manager import AnalysisCache
 
 
 def pdfparser(data):
@@ -425,6 +426,7 @@ def recordaudio(request):
         response = HttpResponse('Success! This is a 200 response.', content_type='text/plain', status=200)
         return response
 
+analysis_cache = AnalysisCache()
 def newsanalysis(request):
     if request.method == 'POST':
         topicname = request.POST.get("topicname", "")
@@ -435,8 +437,24 @@ def newsanalysis(request):
         news = []
         for item in json_data:
             news.append(item['Summary'])
+        
+        cached_sentiment, cached_text = analysis_cache.get_analysis(topicname, news)
+        
+        if cached_sentiment and cached_text:
+            print('loaded sentiment')
+            return render(request, 'realworld/results.html', {
+                'sentiment': cached_sentiment, 
+                'text': cached_text, 
+                'reviewsRatio': {}, 
+                'totalReviews': 1, 
+                'showReviewsRatio': False
+            })
+        
         finalText = news
         result = detailed_analysis(news)
+        print('cached sentiment')
+        analysis_cache.set_analysis(topicname, news, result, finalText)
+        
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
 
     else:
