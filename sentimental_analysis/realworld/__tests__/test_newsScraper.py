@@ -170,6 +170,28 @@ class TestScrapNews(unittest.TestCase):
             data = json.load(f)
             self.assertEqual(len(data), 0)
 
+    def test_duplicate_entries(self):
+        """Test for duplicate entries in cache"""
+        summaries = [item['Summary'] for item in self.json_data]
+        self.assertEqual(len(summaries), len(set(summaries)))
+
+    def test_max_summary_length(self):
+        """Test if any summary exceeds reasonable length"""
+        for item in self.json_data:
+            self.assertLess(len(item['Summary']), 2000)
+
+    def test_min_summary_length(self):
+        """Test if summaries meet minimum length"""
+        for item in self.json_data:
+            self.assertGreater(len(item['Summary']), 50)
+
+    def test_special_characters(self):
+        """Test handling of special characters in summaries"""
+        special_chars = ['<', '>', '&', '"', "'"]
+        for item in self.json_data:
+            for char in special_chars:
+                self.assertNotIn(char, item['Summary'])
+
     
     
     @classmethod
