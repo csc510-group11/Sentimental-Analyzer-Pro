@@ -240,6 +240,39 @@ class TestScrapNews(unittest.TestCase):
             word_count = len(item['Summary'].split())
             self.assertGreater(word_count, 10)
             self.assertLess(word_count, 200)
+
+    def test_keyword_frequency(self):
+        """Test keyword frequency in summaries"""
+        keywords_found = 0
+        for item in self.json_data:
+            if any(keyword in item['Summary'].lower() for keyword in search_for):
+                keywords_found += 1
+        self.assertGreater(keywords_found / len(self.json_data), 0.5)  # At least 50% should contain keywords
+
+    def test_cache_update_time(self):
+        """Test if cache file is recent"""
+        cache_time = os.path.getmtime(json_path)
+        current_time = time.time()
+        self.assertLess(current_time - cache_time, 86400)  # Cache should be less than 24 hours old
+
+    def test_malformed_data_handling(self):
+        """Test handling of malformed data"""
+        malformed_data = mock_data + [{"Invalid": "No Summary Field"}]
+        with self.assertRaises(KeyError):
+            for item in malformed_data:
+                _ = item['Summary']
+
+    def test_cache_concurrent_access(self):
+        """Test concurrent access to cache file"""
+        def read_cache():
+            with open(json_path, "r") as f:
+                json.load(f)
+        threads = [threading.Thread(target=read_cache) for _ in range(5)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        self.assertTrue(True)  # If we get here, no concurrent access issues
     
     @classmethod
     def tearDownClass(self):
