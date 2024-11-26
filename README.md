@@ -107,12 +107,24 @@ git clone https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro.git
 python3.10 -m venv env
 source env/bin/activate
 ```
-4. Install dependencies for the project from the root directory of the project:
+4. Add environment variable
+
+For Windows:
+```
+set DJANGO_ALLOWED_HOSTS=0.0.0.0,localhost,127.0.0.1
+```
+
+For Linux (Ubuntu) and Max:
+```
+export DJANGO_ALLOWED_HOSTS=0.0.0.0,localhost,127.0.0.1
+```
+   
+5. Install dependencies for the project from the root directory of the project:
 ```
 pip3 install -r requirements.txt
 python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('averaged_perceptron_tagger')"
 ```
-5. Install ffmpeg:  
+6. Install ffmpeg:  
 For Windows:  
 ```
 winget install ffmpeg
@@ -127,16 +139,16 @@ brew install ffmpeg
 '''
 brew install ffmpeg
 ```
-6. Run Django Server migrations manage.py (Note: Make sure you are in root directory of the project.)
+7. Run Django Server migrations manage.py (Note: Make sure you are in root directory of the project.)
 ```
 python3 .\sentimental_analysis\manage.py makemigrations
 python3 .\sentimental_analysis\manage.py migrate
 ```
-7. Run Django Server using manage.py (Note: Make sure you are in root directory of the project.)
+8. Run Django Server using manage.py (Note: Make sure you are in root directory of the project.)
 ```
 python3 .\sentimental_analysis\manage.py runserver
 ```
-8. Next, open your browser and type in `localhost:8000` in the search bar to open the user interface of the application.
+9. Next, open your browser and type in `localhost:8000` in the search bar to open the user interface of the application.
    
 Now, you are good to go.
 
