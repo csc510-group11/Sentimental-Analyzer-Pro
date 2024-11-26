@@ -219,9 +219,9 @@ To Contribute to our application, please refer to [CONTRIBUTING.md](https://gith
 <a name="team"></a>
 ## Team Members
 
-- Yunfei Chen
-- Tanuj Kulkarni
-- Shubham Vijay Tidke
+- Jay Joshi
+- Dinesh Pasupuleti
+- Srivardhan Vura
 
 ## Citation
 
