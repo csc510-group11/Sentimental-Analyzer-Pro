@@ -424,7 +424,6 @@ def redditanalysis(request):
         note = "Enter the Reddit post URL for analysis"
         return render(request, 'realworld/redditanalysis.html', {'note': note})
 
-
 def audioanalysis(request):
     if request.method == 'POST':
         file = request.FILES['audioFile']
