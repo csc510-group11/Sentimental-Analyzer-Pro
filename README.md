@@ -10,8 +10,6 @@
 [![GitHub Issues](https://img.shields.io/github/issues/jayjoshi1400/Sentimental-Analyzer-Pro)](https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro/issues)
 [![GitHub Closed Issues](https://img.shields.io/github/issues-closed/jayjoshi1400/Sentimental-Analyzer-Pro)](https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro/issues?q=is%3Aissue+is%3Aclosed)
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/jayjoshi1400/Sentimental-Analyzer-Pro)](https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro/pulls)
-![GitHub Language Count](https://img.shields.io/github/languages/count/jayjoshi1400/Sentimental-Analyzer-Pro)
-![GitHub repo size](https://img.shields.io/github/repo-size/jayjoshi1400/Sentimental-Analyzer-Pro)
 [![github workflow](https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro/actions/workflows/code_coverage.yml/badge.svg)](https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro/actions/workflows/code_coverage.yml)
 [![codecov](https://codecov.io/gh/jayjoshi1400/Sentimental-Analyzer-Pro/branch/main/graph/badge.svg)](https://codecov.io/gh/jayjoshi1400/Sentimental-Analyzer-Pro)
 [![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
