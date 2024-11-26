@@ -108,7 +108,7 @@ source env/bin/activate
 4. Install dependencies for the project from the root directory of the project:
 ```
 pip3 install -r requirements.txt
-python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('averaged_perceptron_tagger')"
 ```
 5. Install ffmpeg:  
 For Windows:  
@@ -122,12 +122,17 @@ sudo apt install ffmpeg
 For Mac:  
 ```
 brew install ffmpeg
-```   
-6. Run Django Server using manage.py (Note: Make sure you are in root directory of the project.)
+```
+6. Run Django Server migrations manage.py (Note: Make sure you are in root directory of the project.)
+```
+python3 .\sentimental_analysis\manage.py makemigrations
+python3 .\sentimental_analysis\manage.py migrate
+```
+7. Run Django Server using manage.py (Note: Make sure you are in root directory of the project.)
 ```
 python3 .\sentimental_analysis\manage.py runserver
 ```
-7. Next, open your browser and type in `localhost:8000` in the search bar to open the user interface of the application.
+8. Next, open your browser and type in `localhost:8000` in the search bar to open the user interface of the application.
    
 Now, you are good to go.
 
