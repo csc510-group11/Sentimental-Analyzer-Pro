@@ -267,6 +267,62 @@ def textanalysis(request):
         note = "Enter the Text to be analysed!"
         return render(request, 'realworld/textanalysis.html', {'note': note})
 
+def batch_analysis(request):
+    if request.method == 'POST':
+        texts = request.POST.get("batchTextField", "").split('\n')
+        texts = [t.strip() for t in texts if t.strip()]
+        
+        # Initialize aggregate sentiment scores
+        total_sentiment = {
+            'pos': 0.0,
+            'neg': 0.0,
+            'neu': 0.0
+        }
+        
+        # Process each text
+        individual_results = {}  # Changed from list to dictionary
+        for idx, text in enumerate(texts):
+            final_comment = text.split('.')
+            if determine_language(final_comment):
+                result = detailed_analysis(final_comment)
+            else:
+                sc = classifiers.SpanishClassifier(model_name="sentiment_analysis")
+                result_string = ' '.join(final_comment)
+                result_classifier = sc.predict(result_string)
+                result = {
+                    'pos': result_classifier.get('positive', 0.0),
+                    'neg': result_classifier.get('negative', 0.0),
+                    'neu': result_classifier.get('neutral', 0.0)
+                }
+            
+            # Add to totals
+            total_sentiment['pos'] += result['pos']
+            total_sentiment['neg'] += result['neg']
+            total_sentiment['neu'] += result['neu']
+            
+            # Store individual results with index as key
+            individual_results[str(idx)] = {
+                'text': text,
+                'sentiment': result
+            }
+        
+        # Calculate average sentiment
+        num_texts = len(texts) or 1
+        avg_sentiment = {
+            'pos': total_sentiment['pos'] / num_texts,
+            'neg': total_sentiment['neg'] / num_texts,
+            'neu': total_sentiment['neu'] / num_texts
+        }
+            
+        return render(request, 'realworld/results.html', {
+            'sentiment': avg_sentiment,
+            'text': texts,
+            'reviewsRatio': individual_results,  # Now a dictionary
+            'totalReviews': len(texts),
+            'showReviewsRatio': True
+        })
+    return render(request, 'realworld/batch_analysis.html')
+
 def determine_language(texts):
     try:
         for text in texts:

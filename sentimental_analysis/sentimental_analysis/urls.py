@@ -39,7 +39,8 @@ urlpatterns = [
     re_path(r'^twitteranalysis',realworld.views.twitteranalysis,name = 'twitter analysis'),
     re_path(r'^redditanalysis',realworld.views.redditanalysis,name = 'reddit analysis'),
     re_path(r'^recordAudio', realworld.views.recordaudio, name = 'recordAudio'),
-    re_path(r'^newsanalysis',realworld.views.newsanalysis,name = 'news analysis')
+    re_path(r'^newsanalysis',realworld.views.newsanalysis,name = 'news analysis'),
+    re_path(r'^batch_analysis',realworld.views.batch_analysis,name='batch_text_analysis'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
