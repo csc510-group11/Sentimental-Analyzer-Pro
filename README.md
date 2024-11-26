@@ -1,7 +1,7 @@
 # <img src="https://github.com/ychen-207523/Sentimental-Analyzer-Pro/blob/master/sentimental_analysis/realworld/static/images/logo-black-2.png" height="42" width="42"/>The Sentimental Analyzer Pro
 ## Software Engineering Project for CSC 510
 
-[![DOI](https://zenodo.org/badge/869224666.svg)](https://doi.org/10.5281/zenodo.14004708)
+[![DOI](https://zenodo.org/badge/869224666.svg)](https://doi.org/10.5281/zenodo.14226600)
 [![GitHub Release](https://img.shields.io/github/v/release/jayjoshi1400/Sentimental-Analyzer-Pro)](https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro/releases)
 [![Build](https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro/actions/workflows/main.yml/badge.svg)](https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro/actions/workflows/main.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
