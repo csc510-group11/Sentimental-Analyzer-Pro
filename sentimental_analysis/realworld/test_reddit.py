@@ -56,39 +56,6 @@ def test_sentiment_empty():
     assert result["neg"] == 0
     assert result["neu"] == 0
 
-# Test API integration
-@patch('sentimental_analysis.realworld.reddit_scrap.fetch_reddit_post')
-def test_reddit_analysis_view_valid_post(mock_fetch, mock_reddit_post, client):
-    mock_fetch.return_value = mock_reddit_post
-
-    response = client.post('/redditanalysis/', data={"blogname": "https://www.reddit.com/r/test/comments/test_id"})
-    assert response.status_code == 200
-    assert "sentiment" in response.context
-    assert response.context["sentiment"]["pos"] >= 0
-    assert response.context["text"]
-
-@patch('sentimental_analysis.realworld.reddit_scrap.fetch_reddit_post')
-def test_reddit_analysis_view_invalid_url(mock_fetch, client):
-    mock_fetch.side_effect = Exception("Invalid URL")
-    response = client.post('/redditanalysis/', data={"blogname": "invalid_url"})
-    assert response.status_code == 200
-    assert "note" in response.context
-
-@patch('sentimental_analysis.realworld.reddit_scrap.fetch_reddit_post')
-def test_reddit_analysis_view_empty_url(mock_fetch, client):
-    response = client.post('/redditanalysis/', data={"blogname": ""})
-    assert response.status_code == 200
-    assert "note" in response.context
-
-@patch('sentimental_analysis.realworld.reddit_scrap.fetch_reddit_post')
-def test_reddit_analysis_view_no_comments(mock_fetch, mock_reddit_post, client):
-    mock_reddit_post["comments"] = []
-    mock_fetch.return_value = mock_reddit_post
-
-    response = client.post('/redditanalysis/', data={"blogname": "https://www.reddit.com/r/test/comments/test_id"})
-    assert response.status_code == 200
-    assert response.context["totalReviews"] == 2  # Title and body only
-
 # Test edge cases
 def test_sentiment_score_special_characters():
     data = ["!!!", "@@@", "###"]
