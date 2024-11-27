@@ -231,7 +231,26 @@ class AuthenticationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'password2', "This password is too common.")
 
-    
+    def test_login_form_error_message(self):
+        """Test if login page shows correct error message when form validation fails."""
+        response = self.client.post(reverse('login'), {
+            'username': '',
+            'password': ''
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'username', "This field is required.")
+        self.assertFormError(response, 'form', 'password', "This field is required.")
+
+    def test_register_form_error_message(self):
+        """Test if register page shows correct error message when form validation fails."""
+        response = self.client.post(reverse('register'), {
+            'username': '',
+            'password1': '',
+            'password2': ''
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'username', "This field is required.")
+        self.assertFormError(response, 'form', 'password1', "This field is required.")
 
 if __name__ == "__main__":
     unittest.main()
