@@ -200,5 +200,15 @@ class AuthenticationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Please enter a correct username and password.")
 
+    def test_login_csrf(self):
+        """Test if CSRF token is present on the login page."""
+        response = self.client.get(reverse('login'))
+        self.assertContains(response, 'csrfmiddlewaretoken')
+
+    def test_register_csrf(self):
+        """Test if CSRF token is present on the register page."""
+        response = self.client.get(reverse('register'))
+        self.assertContains(response, 'csrfmiddlewaretoken')
+
 if __name__ == "__main__":
     unittest.main()
