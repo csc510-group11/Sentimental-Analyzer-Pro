@@ -190,6 +190,15 @@ class AuthenticationTests(TestCase):
         self.assertFormError(response, 'form', 'username',
                              "Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.")
 
-    
+    def test_login_inactive_user(self):
+        """Test if login fails for an inactive user."""
+        user = User.objects.create_user(username='testuser', password='Password123', is_active=False)
+        response = self.client.post(reverse('login'), {
+            'username': 'testuser',
+            'password': 'Password123'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Please enter a correct username and password.")
+
 if __name__ == "__main__":
     unittest.main()
