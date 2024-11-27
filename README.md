@@ -24,7 +24,7 @@ The Sentimental Analyzer Pro is a versatile tool that can perform sentiment anal
 
 ## Working Demo
 
-[![Watch the video](https://img.youtube.com/vi/rQOJ5UGA8WI/maxresdefault.jpg)](https://www.youtube.com/watch?v=rQOJ5UGA8WI)
+[![Watch the video](https://img.youtube.com/vi/rQOJ5UGA8WI/maxresdefault.jpg)](https://www.youtube.com/watch?v=W-z5ykX0H2A)
 
 ---
  
