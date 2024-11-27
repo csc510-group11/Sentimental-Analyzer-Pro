@@ -208,11 +208,16 @@ pytest
 ☑️  Documentation Improvement for reflecting project's value accurately<br>
 ☑️  Addition of Builds and Workflows for better development activities<br>
 ☑️  Public facing webpage to get feedbacks, Raise and handle issues, Discuss & Grow with enthusiasts and supportive community<br>  
+☑️  Docker-Ready Deployment for seamless deployment across any platform with our containerized solution<br>  
+☑️  Intelligent Caching System to reduce redundant API calls<br>  
+☑️  Intelligent Caching System to reduce redundant API calls<br>  
+☑️  Process multiple texts simultaneously with our new batch analysis feature<br> 
+
 
 ### Future Scope
-- [ ] Recommendation System based on Product Analysis Results
-- [ ] Add support for web scraping of dynamic, JavaScript-heavy sites to enhance data extraction
-- [ ] Provide support for more platforms for social media analysis
+- [ ] Advanced Analytics which include emotion detection, comparision tools and auto-generated reports
+- [ ] Enable users to compare sentiment across different brands or products
+- [ ] Allow users to train sentiment models specific to their industry or needs
       
 ---  
 <a name="casestudy"></a>
