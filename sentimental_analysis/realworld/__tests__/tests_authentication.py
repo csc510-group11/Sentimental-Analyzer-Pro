@@ -210,5 +210,28 @@ class AuthenticationTests(TestCase):
         response = self.client.get(reverse('register'))
         self.assertContains(response, 'csrfmiddlewaretoken')
 
+    def test_login_empty_username_and_password(self):
+        """Test if login fails when both username and password are empty."""
+        response = self.client.post(reverse('login'), {
+            'username': '',
+            'password': ''
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'username', "This field is required.")
+        self.assertFormError(response, 'form', 'password', "This field is required.")
+
+
+    def test_register_common_password(self):
+        """Test if registration fails when password is too common."""
+        response = self.client.post(reverse('register'), {
+            'username': 'TestUser',
+            'password1': 'password123',
+            'password2': 'password123'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'password2', "This password is too common.")
+
+    
+
 if __name__ == "__main__":
     unittest.main()
