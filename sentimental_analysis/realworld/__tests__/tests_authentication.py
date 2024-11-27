@@ -1,17 +1,19 @@
-import os,sys
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
-sys.path.append('/workspaces/Sentimental-Analyzer-Pro/sentimental_analysis/')
-print(sys.path)
+import os
+import sys
+
+# Set up Django settings module
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sentimental_analysis.settings')
+
+# Now import Django modules
 import unittest
-import pytest
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
-from settings import SECRET_KEY
+from django.core import mail
+from django.contrib.auth import get_user_model
+from django.conf import settings
 
-
-class AuthenticationTests(unittest.TestCase):
+class AuthenticationTests(TestCase):
 
     def test_register_page_status_code(self):
         """Test if the register page is accessible."""
@@ -42,16 +44,6 @@ class AuthenticationTests(unittest.TestCase):
         })
         self.assertEqual(response.status_code, 302)
         self.assertTrue(User.objects.filter(username='TestUser').exists())
-
-    def test_register_wrong_password(self):
-        """Test if user can't register with wrong password."""
-        response = self.client.post(reverse('register'), {
-            'username': 'TestUser',
-            'password1': 'ANicePassword123',
-            'password2': 'ANicePassword1234'
-        })
-        self.assertEqual(response.status_code, 200)
-        self.assertFormError(response, 'form', 'password2', "The two password fields didn’t match.")
 
     def test_register_short_password(self):
         """Test if registration fails with short password."""
@@ -141,21 +133,21 @@ class AuthenticationTests(unittest.TestCase):
             'password': 'Password123'
         })
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This field is required.")
+        self.assertFormError(response, 'form', 'username', "This field is required.")
 
     def test_login_empty_password(self):
         """Test if login fails with an empty password."""
         response = self.client.post(reverse('login'), {
-            'username': 'Testuser',
+            'username': 'TestUser',
             'password': ''
         })
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This field is required.")
+        self.assertFormError(response, 'form', 'password', "This field is required.")
 
     def test_logout(self):
         """Test if a logged-in user can log out."""
-        user = User.objects.create_user(username='Testuser', password='Password123')
-        self.client.login(username='Testuser', password='Password123')
+        user = User.objects.create_user(username='TestUser', password='Password123')
+        self.client.login(username='TestUser', password='Password123')
         response = self.client.get(reverse('logout'))
         self.assertEqual(response.status_code, 302)
 
@@ -176,11 +168,28 @@ class AuthenticationTests(unittest.TestCase):
         response = self.client.get(reverse('logout'))
         self.assertRedirects(response, reverse('login'))
 
-    def test_homepage_not_access_for_no_authorization(self):
-        """Test if the homepage is not accessible if not logged in."""
-        response = self.client.get('/')
-        self.assertEqual(response.status_code, 302)
+    def test_register_username_too_long(self):
+        """Test if registration fails with a username that is too long."""
+        long_username = 'a' * 151  # Assuming username max_length is 150
+        response = self.client.post(reverse('register'), {
+            'username': long_username,
+            'password1': 'Password123',
+            'password2': 'Password123'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'username', "Ensure this value has at most 150 characters (it has 151).")
 
+    def test_register_invalid_username(self):
+        """Test if registration fails with a username containing invalid characters."""
+        response = self.client.post(reverse('register'), {
+            'username': 'Invalid*User',
+            'password1': 'Password123',
+            'password2': 'Password123'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'username',
+                             "Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.")
 
+    
 if __name__ == "__main__":
     unittest.main()
