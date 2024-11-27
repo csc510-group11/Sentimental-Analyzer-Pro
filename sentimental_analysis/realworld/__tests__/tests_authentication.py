@@ -252,5 +252,18 @@ class AuthenticationTests(TestCase):
         self.assertFormError(response, 'form', 'username', "This field is required.")
         self.assertFormError(response, 'form', 'password1', "This field is required.")
 
+    def test_user_can_login_and_logout_multiple_times(self):
+        """Test that a user can log in and out multiple times."""
+        user = User.objects.create_user(username='TestUser', password='Password123')
+        for _ in range(3):
+            login = self.client.login(username='TestUser', password='Password123')
+            self.assertTrue(login)
+            self.client.logout()
+
+    def test_login_view_contains_form(self):
+        """Test that the login view contains the login form."""
+        response = self.client.get(reverse('login'))
+        self.assertContains(response, '<form')
+
 if __name__ == "__main__":
     unittest.main()
