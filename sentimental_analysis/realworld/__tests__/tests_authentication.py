@@ -270,6 +270,11 @@ class AuthenticationTests(TestCase):
         response = self.client.get(reverse('register'))
         self.assertContains(response, '<form')
 
+    def test_logout_without_login(self):
+        """Test that logout view works even if the user is not logged in."""
+        response = self.client.get(reverse('logout'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login'))
 
 if __name__ == "__main__":
     unittest.main()
