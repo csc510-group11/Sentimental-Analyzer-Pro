@@ -237,9 +237,6 @@ To Contribute to our application, please refer to [CONTRIBUTING.md](https://gith
 - Join our mailing list for regular updates
 - Join our discord forum for updates or support or discussions. [Join Here!](https://discord.gg/n8AuYxpf)
 - Or just want to be part of our journey and get to know more about the Sentiment Analyser Pro and its team
-
-**Visit our web page to be part of [Sentiment Analyser Pro community](https://elemental-gong-941.notion.site/Team22-Sentimental-Analyzer-Pro-130bc406342580f6bc05fcc486529b93)**
-
 ---
 
 <a name="team"></a>
