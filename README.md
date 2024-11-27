@@ -32,11 +32,12 @@ The Sentimental Analyzer Pro is a versatile tool that can perform sentiment anal
 1. [Introduction](#intro)
 2. [Sentimental Analyzer Pro Features](#feat)
 3. [How to use  Sentimental Analyzer Pro?](#exec)
-4. [Roadmap and Progress](#roadmap)
-5. [Case Study](#casestudy)
-6. [Contributing to the product](#contribute)
-7. [Connect with us](#Connectwithus)
-8. [Team Members](#team)
+4. [How to setup local docker?](#docker)
+5. [Roadmap and Progress](#roadmap)
+6. [Case Study](#casestudy)
+7. [Contributing to the product](#contribute)
+8. [Connect with us](#Connectwithus)
+9. [Team Members](#team)
 
 ---
 <a name="intro"></a>
@@ -189,6 +190,23 @@ pytest
 ![Seventh](<https://github.com/user-attachments/assets/18f58929-f11c-4db1-95d4-ef9d1a2dad97>)<br>
 
 
+---
+
+<a name="docker"></a>
+## How to use setup local docker?
+
+1. Build a docker image from the Dockerfile in the repo
+
+```
+docker build -t sentimental-analysis .
+```
+
+2. Run the image
+
+```
+docker run -p 8000:8000 sentimental-analysis
+```
+3. Next, open your browser and type in `0.0.0.0:8000` in the search bar to open the user interface of the application.
 
 ---
 <a name="roadmap"></a>
