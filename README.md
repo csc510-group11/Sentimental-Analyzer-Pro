@@ -185,6 +185,11 @@ pytest
 - Image to Document<br><br>
 ![Sixth](<https://github.com/ychen-207523/Sentimental-Analyzer-Pro/blob/master/assets/gifs/ImageToDocument compress.gif>)<br>
 
+- Reddit Analysis<br><br>
+![Seventh](<https://github.com/user-attachments/assets/18f58929-f11c-4db1-95d4-ef9d1a2dad97>)<br>
+
+
+
 ---
 <a name="roadmap"></a>
 ## Roadmap and Progress
