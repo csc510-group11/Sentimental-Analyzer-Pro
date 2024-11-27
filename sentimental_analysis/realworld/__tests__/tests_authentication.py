@@ -265,5 +265,11 @@ class AuthenticationTests(TestCase):
         response = self.client.get(reverse('login'))
         self.assertContains(response, '<form')
 
+    def test_register_view_contains_form(self):
+        """Test that the register view contains the registration form."""
+        response = self.client.get(reverse('register'))
+        self.assertContains(response, '<form')
+
+
 if __name__ == "__main__":
     unittest.main()
