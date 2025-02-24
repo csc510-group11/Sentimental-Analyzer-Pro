@@ -25,6 +25,7 @@ SECRET_KEY = '6vxboac4bx%%za0vl890=#bxomw*$+l+a!t8idg#i!=cp12uuy'
 DEBUG = True
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS.append('127.0.0.1')
 
 
 # Application definition
