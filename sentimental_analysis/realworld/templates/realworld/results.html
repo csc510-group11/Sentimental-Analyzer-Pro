@@ -134,7 +134,19 @@
                </section>
             </div>
             {% endif %}
-               
+
+            {% if is_batch %}
+            {% comment %} button to re-send request with field "download_csv:true" added {% endcomment %}
+            <div class="row clearfix" style="padding-bottom: 10px; padding-left: 30px; padding-top: 10px;">
+               <form action="{% url 'batch_text_analysis' %}" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="batchTextField" value="{{ texts_orig }}">
+                  <input type="hidden" name="download_csv" value="true">
+                  <button type="submit" class="btn btn-primary">Download CSV</button>
+               </form>
+            </div>
+            {% endif %}
+
          </main>
         
       </div>

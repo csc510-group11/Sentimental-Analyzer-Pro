@@ -269,9 +269,10 @@ def textanalysis(request):
 
 def batch_analysis(request):
     if request.method == 'POST':
-        texts = request.POST.get("batchTextField", "").split('\n')
+        texts_orig = request.POST.get("batchTextField", "")
+        texts = texts_orig.split('\n')
         texts = [t.strip() for t in texts if t.strip()]
-        
+
         # Initialize aggregate sentiment scores
         total_sentiment = {
             'pos': 0.0,
@@ -313,13 +314,27 @@ def batch_analysis(request):
             'neg': total_sentiment['neg'] / num_texts,
             'neu': total_sentiment['neu'] / num_texts
         }
-            
+
+        # optional field: get as csv
+        if request.POST.get('download_csv'):
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="sentiment_analysis_results.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow(['Index', 'Text', 'Positive', 'Negative', 'Neutral'])
+            for idx, item in individual_results.items():
+                writer.writerow([idx, item['text'], item['sentiment']['pos'], item['sentiment']['neg'], item['sentiment']['neu']])
+
+            return response
+
         return render(request, 'realworld/results.html', {
             'sentiment': avg_sentiment,
             'text': texts,
             'reviewsRatio': individual_results,  # Now a dictionary
             'totalReviews': len(texts),
-            'showReviewsRatio': True
+            'showReviewsRatio': True,
+            'texts_orig': request.POST.get("batchTextField", ""),
+            'is_batch': True
         })
     return render(request, 'realworld/batch_analysis.html')
 
