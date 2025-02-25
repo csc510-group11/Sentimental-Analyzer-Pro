@@ -28,5 +28,19 @@ The included attachments work as intended, but they are fairly standard and do n
     def test_detailed_analysis_sentence_positive_sentence(self):
         response = detailed_analysis_sentence("""\n\n\n\n\n\n\n\n\n\n  \n  \n    \n  These Palazzo Pants are GORGEOUS! The material IS very light and slightly see through, as others have mentioned, however if you wear a pair of nude colored undies it won't pose a problem :-) I am 5'4\" and about 190lbs. I normally wear a size 12/14- Large pant and I got these in an XL and they fit me VERY comfortably. In my opinion, get 1 size up for adequate comfort and you will NOT be disappointed. I have received lots of compliments on these and people actually think it is a skirt :-P I'm super cheap and almost died after I paid the $38 for these but I am happy I did because I really do like them a lot :-) I paired them with a dark green top, also from Amazon, called the LL Womens Boat Neck Dolman Top, for $12.95 and they work wonderfully together! Both are super flowey and comfy. Bring on the warm weather!!! :-D\n\n  \n""")
         self.assertGreater(response['compound'], 0.4)
+
+class TestTextAnalysis(TestCase):
+    def test_text_analysis_get(self):
+        response = self.client.get(reverse('text analysis'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_text_analysis_post(self):
+        response = self.client.post(reverse('text analysis'), {'textField': 'This is a test sentence'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('sentiment', response.context)
+        self.assertIn('text', response.context)
+        self.assertIn('reviewsRatio', response.context)
+        self.assertIn('showReviewsRatio', response.context)
+        self.assertEqual(['This is a test sentence'], response.context['text'])
 if __name__ == '__main__':
     unittest.main()
