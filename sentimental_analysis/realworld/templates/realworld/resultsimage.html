@@ -82,6 +82,16 @@
                <div>
                   <div id="chartContainer2" style="height: 600px; width: 71%; margin-left: auto; margin-right: auto; background-color: gray;"></div>
                </div>
+               <div class="row clearfix" style="padding-bottom: 10px; padding-left: 30px; padding-top: 10px;">
+                  <h2 class="section-title">Sentiment Heatmap</h2>
+               </div>
+               <div>
+                  {% if heatmap_image %}
+                  <img src="data:image/png;base64,{{ heatmap_image }}" alt="Sentiment Heatmap" style="width: 71%; margin-left: auto; margin-right: auto;">
+                  {% else %}
+                  <p style="text-align: center;">Heatmap not available for this analysis.</p>
+                  {% endif %}
+               </div>
             </section>
          </main>
         
@@ -90,13 +100,13 @@
          <div class="row clearfix">
            <div class="col-2">
              <p id="dev">
-               &copy; Developed by Team 58: <a href="https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro">Sentimental-Analyzer-Pro</a>
+               &copy; Developed by Team 20: <a href="https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro">Sentimental-Analyzer-Pro</a>
              </p>
            </div>
            <div class="col-2 disclaimer">
              <div class="team-members">
                <p>Team Members:</p>
-               <p>Jay Joshi&nbsp; Dinesh Pasupuleti &nbsp; Srivardhan Vura</p>
+               <p>Priyanka Khare&nbsp; Kurt Wilson &nbsp; Udita Roychoudhary</p>
              </div>
            </div>
          </div>

@@ -4,6 +4,9 @@ import csv
 from io import StringIO
 import subprocess
 import shutil
+import base64
+import seaborn as sns
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -33,6 +36,7 @@ from django.contrib.auth.decorators import login_required
 from nltk import pos_tag
 from nltk.tokenize import sent_tokenize
 from .cache_manager import AnalysisCache
+nltk.download('vader_lexicon', quiet=True)
 
 
 def pdfparser(data):
@@ -251,6 +255,26 @@ def textanalysis(request):
         final_comment = text_data.split('.')
         result = {}
         finalText = final_comment
+        analyzer = SentimentIntensityAnalyzer()
+        sentiment_scores = [analyzer.polarity_scores(sentence)['compound'] for sentence in final_comment]
+        # Create heatmap data
+        df = pd.DataFrame({'sentence': final_comment, 'sentiment_score': sentiment_scores})
+        heatmap_data = pd.DataFrame({'sentiment_score': sentiment_scores}) #create a dataframe with only the sentiment score.
+
+        # Create heatmap
+        plt.figure(figsize=(10, 6))
+        sns.heatmap(heatmap_data, annot=True, cmap='RdYlGn', cbar=False, fmt='.2f') #convert to dataframe
+        plt.title('Sentiment Heatmap of Sentences')
+        plt.yticks(range(len(final_comment)), final_comment) #set y ticks to be the sentences.
+        plt.tight_layout() #avoid labels being cut off.
+        # Save the heatmap to a buffer
+        import io
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        plt.close() # close the plot to free memory.
+
         if determine_language(final_comment):
             result = detailed_analysis(final_comment)
         else:
@@ -262,10 +286,13 @@ def textanalysis(request):
                 'neu': result_classifier.get('neutral', 0.0),
                 'neg': result_classifier.get('negative', 0.0)
             }
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
+            
+            
+        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False,
+                'heatmap_image': image_base64})
     else:
         note = "Enter the Text to be analysed!"
-        return render(request, 'realworld/textanalysis.html', {'note': note})
+        return render(request, 'realworld/textanalysis.html', {'note': note, 'heatmap_image': image_base64})
 
 def batch_analysis(request):
     if request.method == 'POST':
