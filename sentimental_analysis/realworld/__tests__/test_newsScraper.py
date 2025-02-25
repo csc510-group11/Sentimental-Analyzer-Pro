@@ -9,14 +9,14 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 import json
 # from newsScraper import scrapNews, getNewsResults
-from sentimental_analysis.realworld.newsScraper import scrapNews, getNewsResults
+from realworld.newsScraper import scrapNews, getNewsResults
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 
 query = "Artificial Intelligence"
 search_for = ["ai", "artificial", "intelligence"]
-json_path = r"sentimental_analysis/realworld/news.json"
-news_url_json = r"sentimental_analysis/realworld/__tests__/news_url.json"
+json_path = r"realworld/news.json"
+news_url_json = r"realworld/__tests__/news_url.json"
 
 mock_data = [
     {'Summary': 'AI technology is growing rapidly in various sectors. Recent developments have shown significant advancements in machine learning algorithms, neural networks, and deep learning applications. Researchers are discovering new ways to implement artificial intelligence across different industries, from healthcare to finance, making processes more efficient and accurate. The impact of these technologies continues to reshape how businesses operate and how services are delivered to consumers.'},
@@ -90,7 +90,7 @@ class TestScrapNews(unittest.TestCase):
     def setUpClass(self):
         if self.setup_done == True:
             return
-            
+
         os.makedirs(os.path.dirname(json_path), exist_ok=True)
         with open(json_path, "w") as json_file:
             json.dump(mock_data, json_file)
@@ -273,7 +273,7 @@ class TestScrapNews(unittest.TestCase):
         for t in threads:
             t.join()
         self.assertTrue(True)  # If we get here, no concurrent access issues
-    
+
     @classmethod
     def tearDownClass(self):
         scrapNews(query, 1, True)

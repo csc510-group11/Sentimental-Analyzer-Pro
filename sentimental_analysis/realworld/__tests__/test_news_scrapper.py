@@ -1,11 +1,11 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from sentimental_analysis.realworld.newsScraper import scrapNews, getNewsResults
+from realworld.newsScraper import scrapNews, getNewsResults
 
 class TestNewsScraper(unittest.TestCase):
 
-    @patch('sentimental_analysis.realworld.newsScraper.requests.get')
-    @patch('sentimental_analysis.realworld.newsScraper.BeautifulSoup')
+    @patch('realworld.newsScraper.requests.get')
+    @patch('realworld.newsScraper.BeautifulSoup')
     def test_getNewsResults_returns_urls(self, mock_soup, mock_get):
         # Mock the HTML content and parsing
         mock_get.return_value.content = '<html></html>'
@@ -19,22 +19,22 @@ class TestNewsScraper(unittest.TestCase):
         self.assertEqual(len(result), 3)
         self.assertIn('https://news.example.com/article1', result)
 
-    @patch('sentimental_analysis.realworld.newsScraper.requests.get')
+    @patch('realworld.newsScraper.requests.get')
     def test_getNewsResults_handles_no_results(self, mock_get):
         # Mock no content returned
         mock_get.return_value.content = '<html></html>'
         result = getNewsResults('test query', 0)
         self.assertEqual(result, [])
 
-    @patch('sentimental_analysis.realworld.newsScraper.news_cache')
+    @patch('realworld.newsScraper.news_cache')
     def test_scrapNews_uses_cache(self, mock_cache):
         # Mock cache returning data
         mock_cache.get.return_value = [{'Summary': 'Cached summary'}]
         result = scrapNews('test topic', 1)
         self.assertEqual(result, [{'Summary': 'Cached summary'}])
 
-    @patch('sentimental_analysis.realworld.newsScraper.news_cache')
-    @patch('sentimental_analysis.realworld.newsScraper.getNewsResults')
+    @patch('realworld.newsScraper.news_cache')
+    @patch('realworld.newsScraper.getNewsResults')
     def test_scrapNews_calls_getNewsResults_when_no_cache(self, mock_getNewsResults, mock_cache):
         # Mock cache miss
         mock_cache.get.return_value = None
@@ -43,9 +43,9 @@ class TestNewsScraper(unittest.TestCase):
         self.assertEqual(result, [])
         mock_getNewsResults.assert_called_once_with('test topic', 20)
 
-    @patch('sentimental_analysis.realworld.newsScraper.Article')
-    @patch('sentimental_analysis.realworld.newsScraper.getNewsResults')
-    @patch('sentimental_analysis.realworld.newsScraper.news_cache')
+    @patch('realworld.newsScraper.Article')
+    @patch('realworld.newsScraper.getNewsResults')
+    @patch('realworld.newsScraper.news_cache')
     def test_scrapNews_processes_articles(self, mock_cache, mock_getNewsResults, mock_article_class):
         mock_cache.get.return_value = None
         mock_getNewsResults.return_value = ['https://news.example.com/article1']
@@ -63,9 +63,9 @@ class TestNewsScraper(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['Summary'], 'This is the article summary.')
 
-    @patch('sentimental_analysis.realworld.newsScraper.Article')
-    @patch('sentimental_analysis.realworld.newsScraper.getNewsResults')
-    @patch('sentimental_analysis.realworld.newsScraper.news_cache')
+    @patch('realworld.newsScraper.Article')
+    @patch('realworld.newsScraper.getNewsResults')
+    @patch('realworld.newsScraper.news_cache')
     def test_scrapNews_skips_short_articles(self, mock_cache, mock_getNewsResults, mock_article_class):
         mock_cache.get.return_value = None
         mock_getNewsResults.return_value = ['https://news.example.com/article1']
@@ -80,9 +80,9 @@ class TestNewsScraper(unittest.TestCase):
         result = scrapNews('test topic', 1)
         self.assertEqual(len(result), 0)
 
-    @patch('sentimental_analysis.realworld.newsScraper.Article')
-    @patch('sentimental_analysis.realworld.newsScraper.getNewsResults')
-    @patch('sentimental_analysis.realworld.newsScraper.news_cache')
+    @patch('realworld.newsScraper.Article')
+    @patch('realworld.newsScraper.getNewsResults')
+    @patch('realworld.newsScraper.news_cache')
     def test_scrapNews_handles_exceptions(self, mock_cache, mock_getNewsResults, mock_article_class):
         mock_cache.get.return_value = None
         mock_getNewsResults.return_value = ['https://news.example.com/article1']
@@ -93,11 +93,11 @@ class TestNewsScraper(unittest.TestCase):
         result = scrapNews('test topic', 1)
         self.assertEqual(result, [])
 
-    @patch('sentimental_analysis.realworld.newsScraper.news_cache')
+    @patch('realworld.newsScraper.news_cache')
     def test_scrapNews_saves_to_cache(self, mock_cache):
         mock_cache.get.return_value = None
-        with patch('sentimental_analysis.realworld.newsScraper.getNewsResults') as mock_getNewsResults, \
-             patch('sentimental_analysis.realworld.newsScraper.Article') as mock_article_class:
+        with patch('realworld.newsScraper.getNewsResults') as mock_getNewsResults, \
+             patch('realworld.newsScraper.Article') as mock_article_class:
             mock_getNewsResults.return_value = ['https://news.example.com/article1']
             mock_article = MagicMock()
             mock_article.text = 'This is a valid article text that is longer than 250 characters. ' * 5
@@ -110,15 +110,15 @@ class TestNewsScraper(unittest.TestCase):
             scrapNews('test topic', 1)
             mock_cache.set.assert_called_once()
 
-    @patch('sentimental_analysis.realworld.newsScraper.news_cache')
+    @patch('realworld.newsScraper.news_cache')
     def test_scrapNews_writes_json_output(self, mock_cache):
         mock_cache.get.return_value = [{'Summary': 'Cached summary'}]
         with patch('builtins.open', new_callable=MagicMock()) as mock_file:
             scrapNews('test topic', 1, jsonOutput=True)
             mock_file.assert_called_with('sentimental_analysis/realworld/news.json', 'w')
 
-    @patch('sentimental_analysis.realworld.newsScraper.news_cache')
-    @patch('sentimental_analysis.realworld.newsScraper.getNewsResults')
+    @patch('realworld.newsScraper.news_cache')
+    @patch('realworld.newsScraper.getNewsResults')
     def test_scrapNews_handles_zero_articles(self, mock_getNewsResults, mock_cache):
         mock_cache.get.return_value = None
         mock_getNewsResults.return_value = []

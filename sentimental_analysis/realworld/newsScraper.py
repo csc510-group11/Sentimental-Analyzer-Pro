@@ -22,14 +22,14 @@ def scrapNews(topicName, nums, jsonOutput=True):
             with open("sentimental_analysis/realworld/news.json", "w") as json_file:
                 json.dump(cached_result, json_file)
         return cached_result
-    
-    
+
+
     article_list = []
     news_results = getNewsResults(topicName, nums * 20)
     config = Config()
     config.browser_user_agent = user_agent
     count = nums
-    
+
     for url in news_results:
         if count == 0:
             break
@@ -59,7 +59,7 @@ def scrapNews(topicName, nums, jsonOutput=True):
     news_cache.set(cache_key, article_list)
 
     if jsonOutput == True:
-        with open("sentimental_analysis/realworld/news.json", "w") as json_file:
+        with open("news.json", "w") as json_file:
             json.dump(article_list, json_file)
 
     logging.warning("Articles saved to news.json")

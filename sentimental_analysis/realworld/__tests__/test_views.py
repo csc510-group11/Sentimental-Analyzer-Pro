@@ -1,11 +1,13 @@
 import unittest
+from django.test import TestCase
+from django.urls import reverse
 import os, sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 # from views import detailed_analysis_sentence
-from sentimental_analysis.realworld.views import detailed_analysis_sentence
+from realworld.views import detailed_analysis_sentence, textanalysis
 class TestViews(unittest.TestCase):
-    
+
     def test_detailed_analysis_sentence_negative_sentence(self):
         response = detailed_analysis_sentence("""I can't express how disappointed I am with the SuperClean 3000. Right out of the box, it felt cheap and flimsy. The suction is practically nonexistent—I've had better results using a broom! It barely picked up anything, leaving behind dirt and pet hair everywhere.
 
