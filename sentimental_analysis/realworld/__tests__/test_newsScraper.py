@@ -15,8 +15,9 @@ from django.core.exceptions import ValidationError
 
 query = "Artificial Intelligence"
 search_for = ["ai", "artificial", "intelligence"]
-json_path = r"realworld/news.json"
-news_url_json = r"realworld/__tests__/news_url.json"
+this_file_path = os.path.abspath(__file__)
+json_path = os.path.join(os.path.dirname(this_file_path), os.path.pardir, "news.json")
+news_url_json = os.path.join(os.path.dirname(this_file_path), "news_url.json")
 
 mock_data = [
     {'Summary': 'AI technology is growing rapidly in various sectors. Recent developments have shown significant advancements in machine learning algorithms, neural networks, and deep learning applications. Researchers are discovering new ways to implement artificial intelligence across different industries, from healthcare to finance, making processes more efficient and accurate. The impact of these technologies continues to reshape how businesses operate and how services are delivered to consumers.'},
