@@ -71,3 +71,5 @@ unidecode
 tokenizers==0.20.1
 praw
 seaborn
+
+googletrans==4.0.0-rc1
