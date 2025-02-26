@@ -91,6 +91,16 @@
                      <div>
                         <div id="chartContainer2" style="height: 600px; width: 71%; margin-left: auto; margin-right: auto; background-color: gray;"></div>
                      </div>
+                     <div class="row clearfix" style="padding-bottom: 10px; padding-left: 30px; padding-top: 10px;">
+                        <h2 class="section-title">Sentiment Heatmap</h2>
+                     </div>
+                     <div>
+                        {% if heatmap_image %}
+                        <img src="data:image/png;base64,{{ heatmap_image }}" alt="Sentiment Heatmap" style="width: 71%; margin-left: auto; margin-right: auto;">
+                        {% else %}
+                        <p style="text-align: center;">Heatmap not available for this analysis.</p>
+                        {% endif %}
+                     </div>
                   </section>
                   </div>
                   <div id="tab2" class="tab">
@@ -130,6 +140,16 @@
                   </div>
                   <div>
                      <div id="chartContainer2" style="height: 600px; width: 71%; margin-left: auto; margin-right: auto; background-color: gray;"></div>
+                  </div>
+                  <div class="row clearfix" style="padding-bottom: 10px; padding-left: 30px; padding-top: 10px;">
+                     <h2 class="section-title">Sentiment Heatmap</h2>
+                  </div>
+                  <div>
+                     {% if heatmap_image %}
+                     <img src="data:image/png;base64,{{ heatmap_image }}" alt="Sentiment Heatmap" style="width: 71%; margin-left: auto; margin-right: auto;">
+                     {% else %}
+                     <p style="text-align: center;">Heatmap not available for this analysis.</p>
+                     {% endif %}
                   </div>
                </section>
             </div>

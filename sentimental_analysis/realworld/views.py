@@ -6,7 +6,7 @@ import subprocess
 import shutil
 import base64
 import seaborn as sns
-
+import io
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -35,8 +35,11 @@ from spanish_nlp import classifiers
 from django.contrib.auth.decorators import login_required
 from nltk import pos_tag
 from nltk.tokenize import sent_tokenize
+from nltk.tokenize import word_tokenize
 from .cache_manager import AnalysisCache
 nltk.download('vader_lexicon', quiet=True)
+nltk.download('stopwords', quiet=True)
+nltk.download('punkt', quiet=True)
 
 
 def pdfparser(data):
@@ -249,31 +252,49 @@ def productanalysis(request):
         note = "Please Enter the product blog link for analysis"
         return render(request, 'realworld/productanalysis.html', {'note': note})
 
+def create_word_correlation_heatmap(text):
+    # 1. Text Preprocessing
+    tokens = word_tokenize(text.lower())
+    stop_words = set(stopwords.words('english'))
+    table = str.maketrans('', '', string.punctuation)
+    stripped = [w.translate(table) for w in tokens]
+    words = [word for word in stripped if word.isalpha() and word not in stop_words]
+
+    # 2. Word Co-occurrence Matrix
+    vocabulary = sorted(list(set(words)))
+    co_occurrence_matrix = pd.DataFrame(0, index=vocabulary, columns=vocabulary)
+
+    window_size = 4  # Adjust window size as needed
+
+    for i in range(len(words)):
+        for j in range(max(0, i - window_size), min(len(words), i + window_size + 1)):
+            if i != j:
+                co_occurrence_matrix.loc[words[i], words[j]] += 1
+
+    # 3. Correlation Matrix
+    correlation_matrix = co_occurrence_matrix.corr()
+
+    # 4. Heatmap Visualization
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm')
+    plt.title('Word Correlation Heatmap')
+    plt.tight_layout()
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    plt.close()
+
+    return image_base64
+
+
 def textanalysis(request):
     if request.method == 'POST':
         text_data = request.POST.get("textField", "")
         final_comment = text_data.split('.')
         result = {}
-        finalText = final_comment
-        analyzer = SentimentIntensityAnalyzer()
-        sentiment_scores = [analyzer.polarity_scores(sentence)['compound'] for sentence in final_comment]
-        # Create heatmap data
-        df = pd.DataFrame({'sentence': final_comment, 'sentiment_score': sentiment_scores})
-        heatmap_data = pd.DataFrame({'sentiment_score': sentiment_scores}) #create a dataframe with only the sentiment score.
-
-        # Create heatmap
-        plt.figure(figsize=(10, 6))
-        sns.heatmap(heatmap_data, annot=True, cmap='RdYlGn', cbar=False, fmt='.2f') #convert to dataframe
-        plt.title('Sentiment Heatmap of Sentences')
-        plt.yticks(range(len(final_comment)), final_comment) #set y ticks to be the sentences.
-        plt.tight_layout() #avoid labels being cut off.
-        # Save the heatmap to a buffer
-        import io
-        buffer = io.BytesIO()
-        plt.savefig(buffer, format='png')
-        buffer.seek(0)
-        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-        plt.close() # close the plot to free memory.
+        finalText = final_comment    
+        image_base64 = create_word_correlation_heatmap(text_data)
 
         if determine_language(final_comment):
             result = detailed_analysis(final_comment)
@@ -286,13 +307,45 @@ def textanalysis(request):
                 'neu': result_classifier.get('neutral', 0.0),
                 'neg': result_classifier.get('negative', 0.0)
             }
-            
-            
+        print("Sentiment Scores:", sentiment_scores)  # Debugging
+        
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False,
                 'heatmap_image': image_base64})
     else:
         note = "Enter the Text to be analysed!"
         return render(request, 'realworld/textanalysis.html', {'note': note, 'heatmap_image': image_base64})
+
+def create_sentence_correlation_heatmap(texts):
+    all_sentences = []
+    for text in texts:
+        sentences = sent_tokenize(text)
+        all_sentences.extend(sentences)
+
+    vocabulary = sorted(list(set(all_sentences)))
+    co_occurrence_matrix = pd.DataFrame(0, index=vocabulary, columns=vocabulary)
+
+    window_size = len(texts) #co-occur if in same batch.
+
+    for i in range(len(all_sentences)):
+        for j in range(len(all_sentences)):
+            if i != j:
+                if all_sentences[i] in sent_tokenize(texts[i//len(sent_tokenize(texts[0]))]) and all_sentences[j] in sent_tokenize(texts[j//len(sent_tokenize(texts[0]))]):
+                    co_occurrence_matrix.loc[all_sentences[i], all_sentences[j]] += 1
+
+    correlation_matrix = co_occurrence_matrix.corr()
+
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm')
+    plt.title('Sentence Correlation Heatmap')
+    plt.tight_layout()
+
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    plt.close()
+    print("Sentiment Sentence Scores:", correlation_matrix)  # Debugging
+    return image_base64
 
 def batch_analysis(request):
     if request.method == 'POST':
@@ -341,12 +394,15 @@ def batch_analysis(request):
             'neu': total_sentiment['neu'] / num_texts
         }
             
+        heatmap_image = create_sentence_correlation_heatmap(texts)
+
         return render(request, 'realworld/results.html', {
             'sentiment': avg_sentiment,
             'text': texts,
             'reviewsRatio': individual_results,  # Now a dictionary
             'totalReviews': len(texts),
-            'showReviewsRatio': True
+            'showReviewsRatio': True,
+            'heatmap_image': heatmap_image,
         })
     return render(request, 'realworld/batch_analysis.html')
 
