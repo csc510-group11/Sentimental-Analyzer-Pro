@@ -396,12 +396,17 @@ def batch_analysis(request):
         }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             
         heatmap_image = create_sentence_correlation_heatmap(texts)
 =======
 =======
 >>>>>>> 57dbe222f (pkhare wrote tests)
 
+=======
+        heatmap_image = create_sentence_correlation_heatmap(texts)
+        
+>>>>>>> b7e773b42 (pkhare merging changes)
         # optional field: get as csv
         if request.POST.get('download_csv'):
             response = HttpResponse(content_type='text/csv')
@@ -414,6 +419,7 @@ def batch_analysis(request):
 
             return response
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 4a4b2afe6 (add prototype CSV output to batch mode)
 =======
 =======
@@ -422,6 +428,9 @@ def batch_analysis(request):
 >>>>>>> 46d3034 (pkhare wrote tests)
 >>>>>>> 57dbe222f (pkhare wrote tests)
 
+=======
+            
+>>>>>>> b7e773b42 (pkhare merging changes)
         return render(request, 'realworld/results.html', {
             'sentiment': avg_sentiment,
             'text': texts,
@@ -430,18 +439,23 @@ def batch_analysis(request):
             'showReviewsRatio': True,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             'heatmap_image': heatmap_image,
 =======
             'texts_orig': request.POST.get("batchTextField", ""),
             'is_batch': True
 >>>>>>> 4a4b2afe6 (add prototype CSV output to batch mode)
 =======
-            'texts_orig': request.POST.get("batchTextField", ""),
-            'is_batch': True
 =======
+>>>>>>> b7e773b42 (pkhare merging changes)
+            'texts_orig': request.POST.get("batchTextField", ""),
+            'is_batch': True,
             'heatmap_image': heatmap_image,
+<<<<<<< HEAD
 >>>>>>> 46d3034 (pkhare wrote tests)
 >>>>>>> 57dbe222f (pkhare wrote tests)
+=======
+>>>>>>> b7e773b42 (pkhare merging changes)
         })
     return render(request, 'realworld/batch_analysis.html')
 
