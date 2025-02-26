@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 #from views import detailed_analysis_sentence
 from sentimental_analysis.realworld.views import detailed_analysis_sentence
 from sentimental_analysis.realworld.utilityFunctions import sentiment_scores
+from sentimental_analysis.realworld.utilityFunctions import get_clean_text, sentiment_scores
 from sentimental_analysis.realworld.views import pdfparser, detailed_analysis, determine_language, create_word_correlation_heatmap, create_sentence_correlation_heatmap
 from unittest.mock import patch, mock_open
 import os

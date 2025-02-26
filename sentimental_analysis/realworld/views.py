@@ -395,9 +395,12 @@ def batch_analysis(request):
             'neu': total_sentiment['neu'] / num_texts
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
             
         heatmap_image = create_sentence_correlation_heatmap(texts)
 =======
+=======
+>>>>>>> 57dbe222f (pkhare wrote tests)
 
         # optional field: get as csv
         if request.POST.get('download_csv'):
@@ -410,7 +413,14 @@ def batch_analysis(request):
                 writer.writerow([idx, item['text'], item['sentiment']['pos'], item['sentiment']['neg'], item['sentiment']['neu']])
 
             return response
+<<<<<<< HEAD
 >>>>>>> 4a4b2afe6 (add prototype CSV output to batch mode)
+=======
+=======
+            
+        heatmap_image = create_sentence_correlation_heatmap(texts)
+>>>>>>> 46d3034 (pkhare wrote tests)
+>>>>>>> 57dbe222f (pkhare wrote tests)
 
         return render(request, 'realworld/results.html', {
             'sentiment': avg_sentiment,
@@ -419,11 +429,19 @@ def batch_analysis(request):
             'totalReviews': len(texts),
             'showReviewsRatio': True,
 <<<<<<< HEAD
+<<<<<<< HEAD
             'heatmap_image': heatmap_image,
 =======
             'texts_orig': request.POST.get("batchTextField", ""),
             'is_batch': True
 >>>>>>> 4a4b2afe6 (add prototype CSV output to batch mode)
+=======
+            'texts_orig': request.POST.get("batchTextField", ""),
+            'is_batch': True
+=======
+            'heatmap_image': heatmap_image,
+>>>>>>> 46d3034 (pkhare wrote tests)
+>>>>>>> 57dbe222f (pkhare wrote tests)
         })
     return render(request, 'realworld/batch_analysis.html')
 
