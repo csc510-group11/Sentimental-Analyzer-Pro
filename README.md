@@ -99,7 +99,7 @@ Although HTML and CSS are used for the front end, the users can merge the backen
 ### Installation
 1. Clone this project:
 ```
-git clone https://github.com/jayjoshi1400/Sentimental-Analyzer-Pro.git 
+git clone https://github.com/SE-Group20/Sentimental-Analyzer-Pro.git 
 ```
 2. Make sure you are using Python 3.10 or higher. You can get it here: https://www.python.org/downloads/release/python-3115/
 
