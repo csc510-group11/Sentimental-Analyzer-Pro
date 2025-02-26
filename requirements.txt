@@ -70,3 +70,5 @@ spanish_nlp
 unidecode
 tokenizers==0.20.1
 praw
+
+googletrans==4.0.0-rc1
