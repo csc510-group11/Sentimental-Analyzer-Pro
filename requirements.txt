@@ -71,6 +71,4 @@ unidecode
 tokenizers==0.20.1
 praw
 
-spacy
-spacy-langdetect
 googletrans==4.0.0-rc1
