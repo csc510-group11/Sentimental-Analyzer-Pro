@@ -32,7 +32,7 @@ from spanish_nlp import classifiers
 from django.contrib.auth.decorators import login_required
 from nltk import pos_tag
 from nltk.tokenize import sent_tokenize
-from .cache_manager import AnalysisCache
+from realworld.cache_manager import AnalysisCache
 from transformers import pipeline
 from googletrans import Translator
 import re
@@ -270,6 +270,7 @@ def analyze_sentiment(text, language):
     if language == "es":  # Spanish using Spanish NLP Classifier
             sc = classifiers.SpanishClassifier(model_name="sentiment_analysis")
             result_classifier = sc.predict(text)
+            print(result_classifier)
             return {
                 "pos": result_classifier.get("positive", 0.0),
                 "neu": result_classifier.get("neutral", 0.0),
