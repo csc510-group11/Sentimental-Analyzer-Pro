@@ -4,6 +4,9 @@ import csv
 from io import StringIO
 import subprocess
 import shutil
+import base64
+import seaborn as sns
+import io
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -32,6 +35,11 @@ from spanish_nlp import classifiers
 from django.contrib.auth.decorators import login_required
 from nltk import pos_tag
 from nltk.tokenize import sent_tokenize
+from nltk.tokenize import word_tokenize
+from .cache_manager import AnalysisCache
+nltk.download('vader_lexicon', quiet=True)
+nltk.download('stopwords', quiet=True)
+nltk.download('punkt', quiet=True)
 from realworld.cache_manager import AnalysisCache
 from transformers import pipeline
 from googletrans import Translator
@@ -288,10 +296,67 @@ def analyze_sentiment(text, language):
             "neg": scores["neg"]
         }
 
+def create_word_correlation_heatmap(text):
+    # 1. Text Preprocessing
+    tokens = word_tokenize(text.lower())
+    stop_words = set(stopwords.words('english'))
+    table = str.maketrans('', '', string.punctuation)
+    stripped = [w.translate(table) for w in tokens]
+    words = [word for word in stripped if word.isalpha() and word not in stop_words]
+
+    # 2. Word Co-occurrence Matrix
+    vocabulary = sorted(list(set(words)))
+    co_occurrence_matrix = pd.DataFrame(0, index=vocabulary, columns=vocabulary)
+
+    window_size = 4  # Adjust window size as needed
+
+    for i in range(len(words)):
+        for j in range(max(0, i - window_size), min(len(words), i + window_size + 1)):
+            if i != j:
+                co_occurrence_matrix.loc[words[i], words[j]] += 1
+
+    # 3. Correlation Matrix
+    correlation_matrix = co_occurrence_matrix.corr()
+
+    # 4. Heatmap Visualization
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm')
+    plt.title('Word Correlation Heatmap')
+    plt.tight_layout()
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    plt.close()
+
+    return image_base64
+
+
 def textanalysis(request):
     """Performs sentiment analysis for the single line text"""
     if request.method == 'POST':
         text_data = request.POST.get("textField", "")
+        final_comment = text_data.split('.')
+        result = {}
+        finalText = final_comment    
+        image_base64 = create_word_correlation_heatmap(text_data)
+
+        if determine_language(final_comment):
+            result = detailed_analysis(final_comment)
+        else:
+            sc = classifiers.SpanishClassifier(model_name="sentiment_analysis")
+            result_string = ' '.join(final_comment)
+            result_classifier = sc.predict(result_string)
+            result = {
+                'pos': result_classifier.get('positive', 0.0),
+                'neu': result_classifier.get('neutral', 0.0),
+                'neg': result_classifier.get('negative', 0.0)
+            }
+        print("Sentiment Scores:", sentiment_scores)  # Debugging
+        
+        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False,
+                'heatmap_image': image_base64})
+
 
         # Making sure sentences with floating point numbers are getting split correctly
         # Sentences are split by sentence-ending delimiters . ? !     
@@ -311,7 +376,39 @@ def textanalysis(request):
                                                           })
     else:
         note = "Enter the Text to be analysed!"
-        return render(request, 'realworld/textanalysis.html', {'note': note})
+        return render(request, 'realworld/textanalysis.html', {'note': note, 'heatmap_image': image_base64})
+
+def create_sentence_correlation_heatmap(texts):
+    all_sentences = []
+    for text in texts:
+        sentences = sent_tokenize(text)
+        all_sentences.extend(sentences)
+
+    vocabulary = sorted(list(set(all_sentences)))
+    co_occurrence_matrix = pd.DataFrame(0, index=vocabulary, columns=vocabulary)
+
+    window_size = len(texts) #co-occur if in same batch.
+
+    for i in range(len(all_sentences)):
+        for j in range(len(all_sentences)):
+            if i != j:
+                if all_sentences[i] in sent_tokenize(texts[i//len(sent_tokenize(texts[0]))]) and all_sentences[j] in sent_tokenize(texts[j//len(sent_tokenize(texts[0]))]):
+                    co_occurrence_matrix.loc[all_sentences[i], all_sentences[j]] += 1
+
+    correlation_matrix = co_occurrence_matrix.corr()
+
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm')
+    plt.title('Sentence Correlation Heatmap')
+    plt.tight_layout()
+
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    plt.close()
+    print("Sentiment Sentence Scores:", correlation_matrix)  # Debugging
+    return image_base64
 
 def batch_analysis(request):
     """Performs sentiment analysis for multiple text lines"""
@@ -359,6 +456,8 @@ def batch_analysis(request):
             'neu': total_sentiment['neu'] / num_texts
         }
 
+        heatmap_image = create_sentence_correlation_heatmap(texts)
+
         # optional field: get as csv
         if request.POST.get('download_csv'):
             response = HttpResponse(content_type='text/csv')
@@ -370,13 +469,19 @@ def batch_analysis(request):
                 writer.writerow([idx, item['text'], item['sentiment']['pos'], item['sentiment']['neg'], item['sentiment']['neu']])
 
             return response
-
+           
         return render(request, 'realworld/results.html', {
             'sentiment': avg_sentiment,
             'text': texts,
             'reviewsRatio': individual_results,  # Now a dictionary
             'totalReviews': len(texts),
             'showReviewsRatio': True,
+            'heatmap_image': heatmap_image,
+            'texts_orig': request.POST.get("batchTextField", ""),
+            'is_batch': True,
+            'texts_orig': request.POST.get("batchTextField", ""),
+            'is_batch': True,
+            'heatmap_image': heatmap_image,
             'texts_orig': request.POST.get("batchTextField", ""),
             'is_batch': True
         })

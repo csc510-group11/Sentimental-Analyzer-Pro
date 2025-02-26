@@ -2,10 +2,189 @@ import unittest
 import os, sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
-# from views import detailed_analysis_sentence
+#from views import detailed_analysis_sentence
 from sentimental_analysis.realworld.views import detailed_analysis_sentence
-class TestViews(unittest.TestCase):
+from sentimental_analysis.realworld.utilityFunctions import sentiment_scores
+from sentimental_analysis.realworld.utilityFunctions import get_clean_text, sentiment_scores
+from sentimental_analysis.realworld.views import pdfparser, detailed_analysis, determine_language, create_word_correlation_heatmap, create_sentence_correlation_heatmap
+from unittest.mock import patch, mock_open
+import os
+import json
+from io import StringIO
+import shutil
+import base64
+import seaborn as sns
+import io
+import subprocess
+from unittest.mock import patch
+
+from django.test import TestCase, RequestFactory
+from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.auth.models import User
+from django.contrib.sessions.middleware import SessionMiddleware
+
+from .views import (
+    analysis,
+    pdfparser,
+    get_clean_text,
+    detailed_analysis,
+    detailed_analysis_sentence,
+    input,
+    inputimage,
+    productanalysis,
+    create_word_correlation_heatmap,
+    textanalysis,
+    create_sentence_correlation_heatmap,
+    batch_analysis,
+    determine_language,
+    fbanalysis,
+    twitteranalysis,
+    redditanalysis,
+    audioanalysis,
+    livespeechanalysis,
+    recordaudio,
+    newsanalysis,
+    speech_to_text,
+    sentiment_analyzer_scores,
+)
+from . import classifiers
+from . import newsScraper
+from . import utilityFunctions
+from . import fb_scrap
+from . import twitter_scrap
+from . import reddit_scrap
     
+class TestViews(unittest.TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+
+    def test_analysis_view(self):
+        request = self.factory.get(reverse('analysis'))
+        request.user = self.user
+        response = analysis(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_pdfparser(self):
+        # Create a dummy PDF file for testing
+        with open('test.pdf', 'w') as f:
+            f.write('Test PDF content.')
+        result = pdfparser('test.pdf')
+        self.assertIsInstance(result, list)
+        os.remove('test.pdf')
+        os.remove('Output.txt')
+
+    def test_get_clean_text(self):
+        text = "This is a test. It includes links http://example.com and emojis 😊."
+        cleaned_text = get_clean_text(text)
+        self.assertIsInstance(cleaned_text, str)
+
+    def test_detailed_analysis(self):
+        result = ['This is a positive sentence.', 'This is a negative sentence.']
+        analysis_result = detailed_analysis(result)
+        self.assertIsInstance(analysis_result, dict)
+
+    def test_detailed_analysis_sentence(self):
+        result = 'This is a sentence.'
+        analysis_result = detailed_analysis_sentence(result)
+        self.assertIsInstance(analysis_result, dict)
+
+    def test_input_view(self):
+        file_data = b"Test file content"
+        file = SimpleUploadedFile("test.txt", file_data)
+        request = self.factory.post(reverse('input'), {'document': file})
+        request.user = self.user
+        response = input(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_sentiment_scores():
+        text = "This is a positive sentence."
+        scores = sentiment_scores(text)
+        assert isinstance(scores, dict)
+        assert "pos" in scores
+        assert scores["pos"] > 0
+        
+    def test_determine_language_english():
+        texts = ["This is English."]
+        assert determine_language(texts) == True
+
+    def test_determine_language_spanish():
+        texts = ["Esto es español."]
+        assert determine_language(texts) == False
+
+    def test_create_word_correlation_heatmap():
+        text = "word1 word2 word1 word3"
+        heatmap_image = create_word_correlation_heatmap(text)
+        assert isinstance(heatmap_image, str)
+
+    def test_create_sentence_correlation_heatmap():
+        texts = ["sentence1 sentence2", "sentence2 sentence3"]
+        heatmap_image = create_sentence_correlation_heatmap(texts)
+        assert isinstance(heatmap_image, str)
+
+    def test_pdfparser():
+        # Create a mock PDF file content
+        mock_pdf_content = b"%PDF-1.4\n1 0 obj\n<< /Length 48 >>\nstream\n(This is a test PDF content.)\nendstream\nendobj\nxref\n0 2\n0000000000 65535 f \n0000000009 00000 n \ntrailer\n<< /Size 2 >>\nstartxref\n99\n%%EOF"
+
+        with patch("builtins.open", mock_open(read_data=mock_pdf_content)) as mock_file:
+            result = pdfparser("mock_pdf.pdf")
+            assert "This is a test PDF content." in " ".join(result)
+
+    def test_detailed_analysis():
+        texts = ["This is good.", "This is bad."]
+        result = detailed_analysis(texts)
+        assert isinstance(result, dict)
+        assert "pos" in result
+        assert "neg" in result
+        assert "neu" in result
+        
+    def test_get_clean_text_empty_input():
+        assert get_clean_text("") == ""
+
+    def test_get_clean_text_no_valid_tokens():
+        text = "!@#$%^&*()"
+        assert get_clean_text(text) == ""
+             
+    def test_sentiment_scores_mixed():
+        text = "This is good, but also bad."
+        scores = sentiment_scores(text)
+        assert scores["neu"] > scores["pos"]
+        assert scores["neu"] > scores["neg"]
+                    
+    def test_detailed_analysis_empty_list():
+        assert detailed_analysis([]) == {}
+
+    def test_detailed_analysis_single_item():
+        result = detailed_analysis(["This is good."])
+        assert result["pos"] > 0
+        assert result["neg"] == 0
+        assert result["neu"] < 1
+
+    def test_detailed_analysis_sentence_positive():
+        result = detailed_analysis_sentence("I love this!")
+        assert result["compound"] > 0
+
+    def test_detailed_analysis_sentence_negative():
+        result = detailed_analysis_sentence("This is terrible!")
+        assert result["compound"] < 0             
+    
+    def test_determine_language_empty_list():
+        assert determine_language([]) == True
+
+    def test_create_word_correlation_heatmap_empty_text():
+        heatmap_image = create_word_correlation_heatmap("")
+        assert isinstance(heatmap_image, str)
+
+    def test_create_word_correlation_heatmap_single_word():
+        heatmap_image = create_word_correlation_heatmap("test")
+        assert isinstance(heatmap_image, str)
+
+    def test_create_sentence_correlation_heatmap_empty_list():
+        heatmap_image = create_sentence_correlation_heatmap([])
+        assert isinstance(heatmap_image, str)                
+                    
+                    
     def test_detailed_analysis_sentence_negative_sentence(self):
         response = detailed_analysis_sentence("""I can't express how disappointed I am with the SuperClean 3000. Right out of the box, it felt cheap and flimsy. The suction is practically nonexistent—I've had better results using a broom! It barely picked up anything, leaving behind dirt and pet hair everywhere.
 
