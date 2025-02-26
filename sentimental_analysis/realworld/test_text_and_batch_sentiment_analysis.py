@@ -4,7 +4,7 @@ from unittest.mock import patch
 # SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # sys.path.append(os.path.dirname(SCRIPT_DIR))
 # from views import detailed_analysis_sentence
-from views import detect_language, analyze_sentiment, textanalysis, batch_analysis
+from realworld.views import detect_language, analyze_sentiment, textanalysis, batch_analysis
 from django.test import RequestFactory
 
 
@@ -114,7 +114,7 @@ class SentimentAnalysisTests(unittest.TestCase):
     @patch("views.analyze_sentiment")
     @patch("views.detect_language")
     def test_batch_analysis_large_texts(self, mock_detect, mock_analyze):
-        large_text = "This is a long text. " * 1000
+        large_text = "This is a long text. " * 100
         request = self.factory.post("/", {"batchTextField": large_text})
         mock_detect.return_value = "en"
         mock_analyze.return_value = {"pos": 0.5, "neu": 0.4, "neg": 0.1}

@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from sentimental_analysis.realworld.reddit_scrap import *
-from sentimental_analysis.realworld.views import *
+from realworld.reddit_scrap import *
+from realworld.views import *
 
 @pytest.fixture
 def mock_reddit_post():
@@ -24,7 +24,7 @@ def sentiment_data():
     ]
 
 # Test fetch_reddit_post
-@patch('sentimental_analysis.realworld.reddit_scrap.praw.Reddit')
+@patch('realworld.reddit_scrap.praw.Reddit')
 def test_fetch_reddit_post(mock_reddit, mock_reddit_post):
     mock_submission = MagicMock()
     mock_submission.title = mock_reddit_post["title"]
@@ -81,13 +81,13 @@ def test_sentiment_score_non_string_input():
     result = reddit_sentiment_score([str(item) for item in data])
     assert result["neu"] == 100
 
-@patch('sentimental_analysis.realworld.reddit_scrap.praw.Reddit')
+@patch('realworld.reddit_scrap.praw.Reddit')
 def test_fetch_reddit_post_api_failure(mock_reddit):
     mock_reddit.return_value.submission.side_effect = Exception("API failure")
     with pytest.raises(Exception, match="API failure"):
         fetch_reddit_post("https://www.reddit.com/r/test/comments/test_id")
 
-@patch('sentimental_analysis.realworld.reddit_scrap.praw.Reddit')
+@patch('realworld.reddit_scrap.praw.Reddit')
 def test_fetch_reddit_post_no_comments(mock_reddit):
     mock_submission = MagicMock()
     mock_submission.title = "Sample Title"

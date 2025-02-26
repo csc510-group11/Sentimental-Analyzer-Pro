@@ -1,11 +1,11 @@
 import sys
 sys.path.append("./sentimental_analysis/audio/")
 import unittest
-import audio_analyzer
+import audio.audio_analyzer as audio_analyzer
 
 # Unit Test Case for Audio Sentiment Analyzer
 class AudioSentimentAnalyzerTestCase(unittest.TestCase):
-    
+
     # Setup
     def setup(self):
         self.aa = audio_analyzer.AudioAnalyzer()

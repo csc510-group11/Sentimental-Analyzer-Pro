@@ -1,60 +1,43 @@
+import csv
+import os
+import sys
 import unittest
-import os, sys
+
+from django.test import TestCase
+from django.urls import reverse
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
-#from views import detailed_analysis_sentence
-from sentimental_analysis.realworld.views import detailed_analysis_sentence
-from sentimental_analysis.realworld.utilityFunctions import sentiment_scores
-from sentimental_analysis.realworld.utilityFunctions import get_clean_text, sentiment_scores
-from sentimental_analysis.realworld.views import pdfparser, detailed_analysis, determine_language, create_word_correlation_heatmap, create_sentence_correlation_heatmap
-from unittest.mock import patch, mock_open
-import os
-import json
-from io import StringIO
-import shutil
 import base64
-import seaborn as sns
 import io
+import json
+import os
+import shutil
 import subprocess
-from unittest.mock import patch
+from io import StringIO
+from unittest.mock import mock_open, patch
 
-from django.test import TestCase, RequestFactory
-from django.urls import reverse
-from django.core.files.uploadedfile import SimpleUploadedFile
+import seaborn as sns
 from django.contrib.auth.models import User
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import RequestFactory, TestCase
+from django.urls import reverse
 
-from .views import (
-    analysis,
-    pdfparser,
-    get_clean_text,
-    detailed_analysis,
-    detailed_analysis_sentence,
-    input,
-    inputimage,
-    productanalysis,
-    create_word_correlation_heatmap,
-    textanalysis,
-    create_sentence_correlation_heatmap,
-    batch_analysis,
-    determine_language,
-    fbanalysis,
-    twitteranalysis,
-    redditanalysis,
-    audioanalysis,
-    livespeechanalysis,
-    recordaudio,
-    newsanalysis,
-    speech_to_text,
-    sentiment_analyzer_scores,
-)
-from . import classifiers
-from . import newsScraper
-from . import utilityFunctions
-from . import fb_scrap
-from . import twitter_scrap
-from . import reddit_scrap
-    
+from realworld.utilityFunctions import sentiment_scores
+#from views import detailed_analysis_sentence
+from realworld.views import (analysis, audioanalysis, batch_analysis,
+                             create_sentence_correlation_heatmap,
+                             create_word_correlation_heatmap,
+                             detailed_analysis, detailed_analysis_sentence,
+                             fbanalysis, get_clean_text,
+                             input, inputimage, livespeechanalysis,
+                             newsanalysis, pdfparser, productanalysis,
+                             recordaudio, redditanalysis,
+                             sentiment_analyzer_scores, speech_to_text,
+                             textanalysis, twitteranalysis, detect_language)
+
+
 class TestViews(unittest.TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -104,14 +87,14 @@ class TestViews(unittest.TestCase):
         assert isinstance(scores, dict)
         assert "pos" in scores
         assert scores["pos"] > 0
-        
-    def test_determine_language_english():
-        texts = ["This is English."]
-        assert determine_language(texts) == True
 
-    def test_determine_language_spanish():
+    def test_detect_language_english():
+        texts = ["This is English."]
+        assert detect_language(texts) == True
+
+    def test_detect_language_spanish():
         texts = ["Esto es español."]
-        assert determine_language(texts) == False
+        assert detect_language(texts) == False
 
     def test_create_word_correlation_heatmap():
         text = "word1 word2 word1 word3"
@@ -138,20 +121,20 @@ class TestViews(unittest.TestCase):
         assert "pos" in result
         assert "neg" in result
         assert "neu" in result
-        
+
     def test_get_clean_text_empty_input():
         assert get_clean_text("") == ""
 
     def test_get_clean_text_no_valid_tokens():
         text = "!@#$%^&*()"
         assert get_clean_text(text) == ""
-             
+
     def test_sentiment_scores_mixed():
         text = "This is good, but also bad."
         scores = sentiment_scores(text)
         assert scores["neu"] > scores["pos"]
         assert scores["neu"] > scores["neg"]
-                    
+
     def test_detailed_analysis_empty_list():
         assert detailed_analysis([]) == {}
 
@@ -167,10 +150,10 @@ class TestViews(unittest.TestCase):
 
     def test_detailed_analysis_sentence_negative():
         result = detailed_analysis_sentence("This is terrible!")
-        assert result["compound"] < 0             
-    
-    def test_determine_language_empty_list():
-        assert determine_language([]) == True
+        assert result["compound"] < 0
+
+    def test_detect_language_empty_list():
+        assert detect_language([]) == True
 
     def test_create_word_correlation_heatmap_empty_text():
         heatmap_image = create_word_correlation_heatmap("")
@@ -182,9 +165,15 @@ class TestViews(unittest.TestCase):
 
     def test_create_sentence_correlation_heatmap_empty_list():
         heatmap_image = create_sentence_correlation_heatmap([])
-        assert isinstance(heatmap_image, str)                
-                    
-                    
+        assert isinstance(heatmap_image, str)
+
+
+# from views import detailed_analysis_sentence
+from realworld.views import detailed_analysis_sentence, detect_language
+
+
+class TestViews(unittest.TestCase):
+
     def test_detailed_analysis_sentence_negative_sentence(self):
         response = detailed_analysis_sentence("""I can't express how disappointed I am with the SuperClean 3000. Right out of the box, it felt cheap and flimsy. The suction is practically nonexistent—I've had better results using a broom! It barely picked up anything, leaving behind dirt and pet hair everywhere.
 
@@ -205,5 +194,195 @@ The included attachments work as intended, but they are fairly standard and do n
     def test_detailed_analysis_sentence_positive_sentence(self):
         response = detailed_analysis_sentence("""\n\n\n\n\n\n\n\n\n\n  \n  \n    \n  These Palazzo Pants are GORGEOUS! The material IS very light and slightly see through, as others have mentioned, however if you wear a pair of nude colored undies it won't pose a problem :-) I am 5'4\" and about 190lbs. I normally wear a size 12/14- Large pant and I got these in an XL and they fit me VERY comfortably. In my opinion, get 1 size up for adequate comfort and you will NOT be disappointed. I have received lots of compliments on these and people actually think it is a skirt :-P I'm super cheap and almost died after I paid the $38 for these but I am happy I did because I really do like them a lot :-) I paired them with a dark green top, also from Amazon, called the LL Womens Boat Neck Dolman Top, for $12.95 and they work wonderfully together! Both are super flowey and comfy. Bring on the warm weather!!! :-D\n\n  \n""")
         self.assertGreater(response['compound'], 0.4)
+
+class TestTextAnalysis(TestCase):
+    # kwilso24
+    def test_text_analysis_get(self):
+        response = self.client.get(reverse('text analysis'))
+        self.assertEqual(response.status_code, 200)
+        # content should be html
+        self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8')
+
+    # kwilso24
+    def test_text_analysis_get_fields(self):
+        response = self.client.get(reverse('text analysis'))
+        self.assertIn('note', response.context)
+
+
+    # kwilso24
+    def test_text_analysis_post(self):
+        response = self.client.post(reverse('text analysis'), {'textField': 'This is a test sentence'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8')
+
+    # kwilso24
+    def test_text_analysis_post_fields(self):
+        response = self.client.post(reverse('text analysis'), {'textField': 'This is a test sentence'})
+        self.assertIn('sentiment', response.context)
+        self.assertIn('text', response.context)
+        self.assertIn('reviewsRatio', response.context)
+        self.assertIn('showReviewsRatio', response.context)
+        self.assertEqual(['This is a test sentence'], response.context['text'])
+
+    # kwilso24
+    def test_text_analysis_output_structure_text(self):
+        response = self.client.post(reverse('text analysis'), {'textField': 'This is a test sentence. This is another'})
+        # text is split by period
+        self.assertEqual(2, len(response.context['text']))
+        self.assertEqual(['This is a test sentence', ' This is another'], response.context['text'])
+
+    # kwilso24
+    def test_text_analysis_output_structure_sentiment(self):
+        response = self.client.post(reverse('text analysis'), {'textField': 'This is a test sentence'})
+        self.assertEqual(3, len(response.context['sentiment']))
+        # check that sentiment has 3 keys ('pos', 'neu', 'neg')
+        self.assertIn('pos', response.context['sentiment'])
+        self.assertIn('neu', response.context['sentiment'])
+        self.assertIn('neg', response.context['sentiment'])
+        # check that values are floats
+        self.assertIsInstance(response.context['sentiment']['pos'], float)
+        self.assertIsInstance(response.context['sentiment']['neu'], float)
+        self.assertIsInstance(response.context['sentiment']['neg'], float)
+
+    # kwilso24
+    def test_text_analysis_output_structure_reviewsRatio(self):
+        # should be empty
+        response = self.client.post(reverse('text analysis'), {'textField': 'This is a test sentence'})
+        self.assertEqual({}, response.context['reviewsRatio'])
+
+
+class TestBatchAnalysis(TestCase):
+    # kwilso24
+    def test_batch_analysis_get(self):
+        response = self.client.get(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence'})
+        self.assertEqual(response.status_code, 200)
+        # content should be html
+        self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8')
+
+    # kwilso24
+    def test_batch_analysis_post(self):
+        response = self.client.post(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8')
+
+    # kwilso24
+    def test_batch_analysis_post_fields(self):
+        response = self.client.post(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence'})
+        self.assertIn('sentiment', response.context)
+        self.assertIn('text', response.context)
+        self.assertIn('reviewsRatio', response.context)
+        self.assertIn('showReviewsRatio', response.context)
+        self.assertIn('totalReviews', response.context)
+        self.assertIn('texts_orig', response.context)
+
+    # kwilso24
+    def test_batch_analysis_output_text(self):
+        response = self.client.post(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence'})
+        self.assertEqual(['This is a test sentence'], response.context['text'])
+
+    # kwilso24
+    def test_batch_analysis_output_structure_text(self):
+        response = self.client.post(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence.\nThis is another'})
+        # text is split by newline
+        self.assertEqual(2, len(response.context['text']))
+        self.assertEqual(['This is a test sentence.', 'This is another'], response.context['text'])
+
+    # kwilso24
+    def test_batch_analysis_output_structure_sentiment(self):
+        response = self.client.post(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence'})
+        self.assertEqual(3, len(response.context['sentiment']))
+        # check that sentiment has 3 keys ('pos', 'neu', 'neg')
+        self.assertIn('pos', response.context['sentiment'])
+        self.assertIn('neu', response.context['sentiment'])
+        self.assertIn('neg', response.context['sentiment'])
+        # check that values are floats
+        self.assertIsInstance(response.context['sentiment']['pos'], float)
+        self.assertIsInstance(response.context['sentiment']['neu'], float)
+        self.assertIsInstance(response.context['sentiment']['neg'], float)
+
+    # kwilso24
+    def test_batch_analysis_orig_passed(self):
+        response = self.client.post(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence'})
+        self.assertEqual('This is a test sentence', response.context['texts_orig'])
+        response = self.client.post(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence.\nThis is another'})
+        self.assertEqual('This is a test sentence.\nThis is another', response.context['texts_orig'])
+
+
+    # kwilso24
+    def test_batch_analysis_csv_type(self):
+        response = self.client.post(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence}', 'download_csv': 'true'})
+        self.assertEqual(response['Content-Type'], 'text/csv')
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="sentiment_analysis_results.csv"')
+
+    # kwilso24
+    def test_batch_analysis_csv_parse(self):
+        response = self.client.post(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence}', 'download_csv': 'true'})
+        # check that csv is not empty
+        self.assertTrue(response.content)
+        # check that csv has correct headers
+        csv_content = response.content.decode('utf-8')
+        headers = csv_content.splitlines()[0].split(',')
+        expected_headers = ['Index', 'Text', 'Positive', 'Negative', 'Neutral']
+        self.assertListEqual(headers, expected_headers)
+
+    # kwilso24
+    def test_batch_analysis_csv_data(self):
+        response = self.client.post(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence}', 'download_csv': 'true'})
+        # check that csv is not empty
+        self.assertTrue(response.content)
+        # check that csv has correct data
+        csv_content = response.content.decode('utf-8')
+        # should be 2 lines: header and data
+        lines = csv_content.splitlines()
+        self.assertEqual(2, len(lines))
+        # check that data is correct
+        data = lines[1].split(',')
+        assert len(data) == 5
+        # make sure the first column is an integer
+        self.assertIsInstance(int(data[0]), int)
+        # make sure the second column is a string
+        self.assertIsInstance(data[1], str)
+        # make sure the last three columns are floats
+        self.assertIsInstance(float(data[2]), float)
+        self.assertIsInstance(float(data[3]), float)
+        self.assertIsInstance(float(data[4]), float)
+
+    # kwilso24
+    def test_batch_analysis_csv_multiple_lines(self):
+        response = self.client.post(reverse('batch_text_analysis'), {'batchTextField': 'This is a test sentence.\nThis is another}', 'download_csv': 'true'})
+        # check that csv is not empty
+        self.assertTrue(response.content)
+        # check that csv has correct data
+        csv_content = response.content.decode('utf-8')
+        # should be 3 lines: header and 2 data lines
+        lines = csv_content.splitlines()
+        self.assertEqual(3, len(lines))
+        # check that data is correct
+        for i in range(1, 3):
+            data = lines[i].split(',')
+            assert len(data) == 5
+            # make sure the first column is an integer
+            self.assertIsInstance(int(data[0]), int)
+            # make sure the second column is a string
+            self.assertIsInstance(data[1], str)
+            # make sure the last three columns are floats
+            self.assertIsInstance(float(data[2]), float)
+            self.assertIsInstance(float(data[3]), float)
+            self.assertIsInstance(float(data[4]), float)
+
+
+class LanguageCheck(TestCase):
+    # kwilso24
+    def test_eng_check(self):
+        # Fails: apparently I speak vietnamese
+        result = detect_language("This is a test sentence with tons of english-like words")
+        self.assertEqual(result, True)
+
+    # kwilso24
+    def test_es_check(self):
+        result = detect_language("Hola, como estas?")
+        self.assertEqual(result, False)
+
+
 if __name__ == '__main__':
     unittest.main()
