@@ -30,7 +30,7 @@ class TestNewsScraper(unittest.TestCase):
     def test_scrapNews_uses_cache(self, mock_cache):
         # Mock cache returning data
         mock_cache.get.return_value = [{'Summary': 'Cached summary'}]
-        result = scrapNews('test topic', 1)
+        result = scrapNews('test topic', 1, False)
         self.assertEqual(result, [{'Summary': 'Cached summary'}])
 
     @patch('realworld.newsScraper.news_cache')
