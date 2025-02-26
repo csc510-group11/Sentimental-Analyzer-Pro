@@ -33,6 +33,9 @@ from django.contrib.auth.decorators import login_required
 from nltk import pos_tag
 from nltk.tokenize import sent_tokenize
 from .cache_manager import AnalysisCache
+from transformers import pipeline
+from googletrans import Translator
+import re
 
 
 def pdfparser(data):
@@ -244,30 +247,74 @@ def productanalysis(request):
     else:
         note = "Please Enter the product blog link for analysis"
         return render(request, 'realworld/productanalysis.html', {'note': note})
+    
+
+# Text sentiment Analysis - Detect Language and use corresponding model for sentiment score
+
+nltk.download('vader_lexicon')
+
+def detect_language(texts):
+    """Detects the language of the given text using spaCy."""
+    detected_languages = []
+    for text in texts:
+        try:
+            lang = detect(text)
+            detected_languages.append(lang)
+        except Exception:
+            detected_languages.append("unknown")
+    # Determine the most common detected language
+    return max(set(detected_languages), key=detected_languages.count)
+
+def analyze_sentiment(text, language):
+    """Performs sentiment analysis based on the detected language."""
+    if language == "es":  # Spanish using Spanish NLP Classifier
+            sc = classifiers.SpanishClassifier(model_name="sentiment_analysis")
+            result_classifier = sc.predict(text)
+            return {
+                "pos": result_classifier.get("positive", 0.0),
+                "neu": result_classifier.get("neutral", 0.0),
+                "neg": result_classifier.get("negative", 0.0)
+            }
+    else: 
+        translator  = Translator() #Use the imported google translator 
+        english_text = translator.translate(text, src=language, dest='en')
+        translated_text = english_text.text
+
+        scores = sentiment_analyzer_scores(translated_text)
+        return {
+            "pos": scores["pos"],
+            "neu": scores["neu"],
+            "neg": scores["neg"]
+        }
 
 def textanalysis(request):
+    """Performs sentiment analysis for the single line text"""
     if request.method == 'POST':
         text_data = request.POST.get("textField", "")
-        final_comment = text_data.split('.')
-        result = {}
-        finalText = final_comment
-        if determine_language(final_comment):
-            result = detailed_analysis(final_comment)
-        else:
-            sc = classifiers.SpanishClassifier(model_name="sentiment_analysis")
-            result_string = ' '.join(final_comment)
-            result_classifier = sc.predict(result_string)
-            result = {
-                'pos': result_classifier.get('positive', 0.0),
-                'neu': result_classifier.get('neutral', 0.0),
-                'neg': result_classifier.get('negative', 0.0)
-            }
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
+
+        # Making sure sentences with floating point numbers are getting split correctly
+        # Sentences are split by sentence-ending delimiters . ? !     
+        sentences =  re.split(r'(?<!\d)[.!?]+(?!\d)', text_data)  
+        sentences = [s.strip() for s in sentences if s.strip()]
+
+        detected_language = detect_language(sentences)
+        print(detected_language)
+        sentiment_result = analyze_sentiment(text_data, detected_language)
+
+        return render(request, 'realworld/results.html', {'sentiment': sentiment_result,
+                                                          'text' : sentences, 
+                                                          "language": detected_language.upper(),
+                                                          'reviewsRatio': {}, 
+                                                          'totalReviews': 1, 
+                                                          'showReviewsRatio': False
+                                                          })
     else:
         note = "Enter the Text to be analysed!"
         return render(request, 'realworld/textanalysis.html', {'note': note})
 
 def batch_analysis(request):
+    """Performs sentiment analysis for multiple text lines"""
+
     if request.method == 'POST':
         texts = request.POST.get("batchTextField", "").split('\n')
         texts = [t.strip() for t in texts if t.strip()]
@@ -279,22 +326,18 @@ def batch_analysis(request):
             'neu': 0.0
         }
         
-        # Process each text
+        # Process each line
         individual_results = {}  # Changed from list to dictionary
         for idx, text in enumerate(texts):
-            final_comment = text.split('.')
-            if determine_language(final_comment):
-                result = detailed_analysis(final_comment)
-            else:
-                sc = classifiers.SpanishClassifier(model_name="sentiment_analysis")
-                result_string = ' '.join(final_comment)
-                result_classifier = sc.predict(result_string)
-                result = {
-                    'pos': result_classifier.get('positive', 0.0),
-                    'neg': result_classifier.get('negative', 0.0),
-                    'neu': result_classifier.get('neutral', 0.0)
-                }
+
+            sentences =  re.split(r'(?<!\d)[.!?]+(?!\d)', text)  
+            sentences = [s.strip() for s in sentences if s.strip()]
             
+            detected_language = detect_language(sentences)
+            print(detected_language)
+
+            result = analyze_sentiment(text, detected_language)
+
             # Add to totals
             total_sentiment['pos'] += result['pos']
             total_sentiment['neg'] += result['neg']
@@ -323,18 +366,7 @@ def batch_analysis(request):
         })
     return render(request, 'realworld/batch_analysis.html')
 
-def determine_language(texts):
-    try:
-        for text in texts:
-            lang = detect(text)
-            if lang != 'en':
-                return False
-        return True
-    except Exception as e:
-        # Handle potential exceptions when using langdetect
-        print(f"Error detecting language: {e}")
-        return False
-
+# End of text sentiment analysis
 
 def fbanalysis(request):
     if request.method == 'POST':
@@ -550,6 +582,7 @@ def speech_to_text(filename):
 def sentiment_analyzer_scores(sentence):
     analyser = SentimentIntensityAnalyzer()
     score = analyser.polarity_scores(sentence)
+    print(score)
     return score
 
 
