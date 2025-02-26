@@ -80,7 +80,7 @@ def get_clean_text(text):
     return textclean
 
 def detailed_analysis(result):
-    result_dict = {}
+    result_dict = {"pos": 0, "neu": 0, "neg": 0}
     neg_count = 0
     pos_count = 0
     neu_count = 0
@@ -279,7 +279,7 @@ def batch_analysis(request):
             'neg': 0.0,
             'neu': 0.0
         }
-        
+
         # Process each text
         individual_results = {}  # Changed from list to dictionary
         for idx, text in enumerate(texts):
@@ -295,18 +295,18 @@ def batch_analysis(request):
                     'neg': result_classifier.get('negative', 0.0),
                     'neu': result_classifier.get('neutral', 0.0)
                 }
-            
+
             # Add to totals
             total_sentiment['pos'] += result['pos']
             total_sentiment['neg'] += result['neg']
             total_sentiment['neu'] += result['neu']
-            
+
             # Store individual results with index as key
             individual_results[str(idx)] = {
                 'text': text,
                 'sentiment': result
             }
-        
+
         # Calculate average sentiment
         num_texts = len(texts) or 1
         avg_sentiment = {
@@ -377,7 +377,7 @@ def fbanalysis(request):
             reviews.append(item["FBPost"])
         finalText = reviews
 
-       
+
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
     else:
         note = "Please Enter the product blog link for analysis"
@@ -409,12 +409,12 @@ def twitteranalysis(request):
             reviews.append(item["review"])
         finalText = reviews
 
-       
+
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
     else:
         note = "Please Enter the product blog link for analysis"
         return render(request, 'realworld/productanalysis.html', {'note': note})
-    
+
 def redditanalysis(request):
     if request.method == 'POST':
         blogname = request.POST.get("blogname", "")  # Get the Reddit post URL from the form
@@ -531,24 +531,24 @@ def newsanalysis(request):
         news = []
         for item in json_data:
             news.append(item['Summary'])
-        
+
         cached_sentiment, cached_text = analysis_cache.get_analysis(topicname, news)
-        
+
         if cached_sentiment and cached_text:
             print('loaded sentiment')
             return render(request, 'realworld/results.html', {
-                'sentiment': cached_sentiment, 
-                'text': cached_text, 
-                'reviewsRatio': {}, 
-                'totalReviews': 1, 
+                'sentiment': cached_sentiment,
+                'text': cached_text,
+                'reviewsRatio': {},
+                'totalReviews': 1,
                 'showReviewsRatio': False
             })
-        
+
         finalText = news
         result = detailed_analysis(news)
         print('cached sentiment')
         analysis_cache.set_analysis(topicname, news, result, finalText)
-        
+
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
 
     else:
