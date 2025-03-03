@@ -97,10 +97,17 @@ def detailed_analysis(result):
     neu_count = 0
     total_count = len(result)
 
+    if isinstance(result, str):
+        result = [result]
+
+    # logging.info("running detailed analysis on %s", result)
     for item in result:
-        cleantext = get_clean_text(str(item))
+        # cleantext = get_clean_text(str(item))
+        cleantext = str(item)
         # print(cleantext)
+        # logging.info("cleaned text: %s", cleantext)
         sentiment = sentiment_scores(cleantext)
+        # logging.info("sentiment: %s", sentiment)
         pos_count += sentiment['pos']
         neu_count += sentiment['neu']
         neg_count += sentiment['neg']
@@ -341,8 +348,14 @@ def textanalysis(request):
         finalText = final_comment
         image_base64 = create_word_correlation_heatmap(text_data)
 
-        if detect_language(final_comment):
+        logging.info("Text Data: %s", text_data)  # Debugging
+        lang = detect_language(final_comment)
+        logging.info("Detected Language: %s", lang)  # Debugging
+
+        if detect_language(final_comment) == 'en':
+            logging.info("using %s", final_comment)
             result = detailed_analysis(final_comment)
+            logging.info("Sentiment Scores: %s", result)  # Debugging
         else:
             sc = classifiers.SpanishClassifier(model_name="sentiment_analysis")
             result_string = ' '.join(final_comment)
