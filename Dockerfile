@@ -1,9 +1,11 @@
 # Use the official lightweight Python 3.10 image
 FROM python:3.10-slim
 
-# Install system dependencies including ffmpeg
+# Install system dependencies including ffmpeg and build tools (g++ is part of build-essential)
 RUN apt-get update && \
-    apt-get install -y ffmpeg && \
+    apt-get install -y --no-install-recommends \
+        ffmpeg \
+        build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 # Set the working directory inside the container
