@@ -1,29 +1,29 @@
+# Use the official lightweight Python 3.10 image
 FROM python:3.10-slim
 
-RUN apt-get update && apt-get install -y \
-    g++ \
-    ffmpeg \
-    libgl1 \
-    libglib2.0-0 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install system dependencies including ffmpeg and build tools (g++ is part of build-essential)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ffmpeg \
+        build-essential && \
+    rm -rf /var/lib/apt/lists/*
 
+# Set the working directory inside the container
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-RUN python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('averaged_perceptron_tagger')"
+# Upgrade pip and install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-COPY . .
+# Download necessary NLTK data packages
+RUN python -c "import nltk; [nltk.download(pkg) for pkg in ['punkt','stopwords','averaged_perceptron_tagger']]"
 
-RUN python sentimental_analysis/manage.py makemigrations
-RUN python sentimental_analysis/manage.py migrate
-
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV DJANGO_ALLOWED_HOSTS=0.0.0.0,localhost
-
+# Expose port 8000 for the Django development server
 EXPOSE 8000
 
-CMD ["python", "sentimental_analysis/manage.py", "runserver", "0.0.0.0:8000"]
+# Run Django migrations and then start the Django development server.
+# Note: Adjust the manage.py path if necessary.
+CMD ["bash", "-c", "python sentimental_analysis/manage.py makemigrations && python sentimental_analysis/manage.py migrate && python sentimental_analysis/manage.py runserver 0.0.0.0:8000"]
