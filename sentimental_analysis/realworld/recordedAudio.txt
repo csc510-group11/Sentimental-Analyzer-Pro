@@ -1,1 +1,0 @@
-sentimental_analysis/media/recordedAudio/1.wav

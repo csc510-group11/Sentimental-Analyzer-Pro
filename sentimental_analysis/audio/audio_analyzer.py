@@ -1,5 +1,4 @@
 import speech_recognition as sr
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 ## Audio Analyzer class for Audio Sentiment Analysis
 class AudioAnalyzer:
@@ -21,11 +20,12 @@ class AudioAnalyzer:
 
     ## methods takes in param sentence text and returns python dictionary containing pos, neg, neutral sentiment
     def sentiment_analyzer_scores(self, sentence):
-        analyser = SentimentIntensityAnalyzer()
+        # analyser = SentimentIntensityAnalyzer()
 
-        score = analyser.polarity_scores(sentence)
-        # print("{:-<40} {}".format(sentence, str(score)))
-        return score
+        # score = analyser.polarity_scores(sentence)
+        # # print("{:-<40} {}".format(sentence, str(score)))
+        # return score
+        return None
 
 ## Usage
 aa = AudioAnalyzer()

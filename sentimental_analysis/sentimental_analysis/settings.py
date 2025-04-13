@@ -31,7 +31,7 @@ ALLOWED_HOSTS.append('127.0.0.1')
 # Application definition
 
 INSTALLED_APPS = [
-    'authapp',
+    'authapp.apps.AuthappConfig',  # This ensures the ready() method in app.py is executed
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
