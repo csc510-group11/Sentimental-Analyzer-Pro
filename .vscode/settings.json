@@ -1,7 +1,0 @@
-{
-    "editor.defaultFormatter": null,
-    "editor.formatOnSave": false,
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.autopep8"
-    },
-}

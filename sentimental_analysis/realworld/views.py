@@ -1,15 +1,11 @@
 import os, sys
 import json
-import csv
 from io import StringIO
+from google import genai
 import subprocess
 import shutil
-import base64
-import seaborn as sns
-import io
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import speech_recognition as sr
 from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
@@ -20,31 +16,18 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
-import nltk
 from pydub import AudioSegment
-from realworld.newsScraper import *
+from sentimental_analysis.realworld.scrapers.newsScraper import *
 from realworld.utilityFunctions import *
-from nltk.corpus import stopwords
-from realworld.fb_scrap import *
-from realworld.twitter_scrap import *
-from realworld.reddit_scrap import *
-import cv2
-from deepface import DeepFace
-from langdetect import detect
-from spanish_nlp import classifiers
+from sentimental_analysis.realworld.scrapers.reddit_scrap import *
 from django.contrib.auth.decorators import login_required
-from nltk import pos_tag
-from nltk.tokenize import sent_tokenize
-from nltk.tokenize import word_tokenize
 from realworld.cache_manager import AnalysisCache
-nltk.download('vader_lexicon', quiet=True)
-nltk.download('stopwords', quiet=True)
-nltk.download('punkt', quiet=True)
 from realworld.cache_manager import AnalysisCache
-from transformers import pipeline
-from googletrans import Translator
-import re
+from pydantic import BaseModel
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def pdfparser(data):
     fp = open(data, 'rb')
@@ -74,21 +57,6 @@ def pdfparser(data):
 @login_required
 def analysis(request):
     return render(request, 'realworld/index.html')
-
-def get_clean_text(text):
-    text = removeLinks(text)
-    text = stripEmojis(text)
-    text = removeSpecialChar(text)
-    text = stripPunctuations(text)
-    text = stripExtraWhiteSpaces(text)
-    tokens = nltk.word_tokenize(text)
-    stop_words = set(stopwords.words('english')).union(['the', 'a', 'an', 'this', 'that', 'these', 'those', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'will', 'would', 'shall', 'should', 'can', 'could', 'may', 'might', 'must', 'ought', 'it', 'they', 'them', 'their', 'theirs', 'themselves', 'he', 'she', 'him', 'her', 'his', 'hers', 'himself', 'herself', 'we', 'us', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'i', 'me', 'my', 'mine', 'myself'])
-    stop_words.add('rt')
-    stop_words.add('')
-    newtokens = [item for item, pos_tag in pos_tag(tokens) if item.lower() not in stop_words and pos_tag in ['NN', 'VB', 'JJ', 'RB']]
-
-    textclean = ' '.join(newtokens)
-    return textclean
 
 def detailed_analysis(result):
     result_dict = {"pos": 0, "neu": 0, "neg": 0}
@@ -171,6 +139,8 @@ def input(request):
 
 def inputimage(request):
     if request.method == 'POST':
+        return
+    '''
         file = request.FILES['document']
         fs = FileSystemStorage()
         fs.save(file.name, file)
@@ -204,7 +174,7 @@ def inputimage(request):
         finalText = max(emotions_dict, key=emotions_dict.get)
         return render(request, 'realworld/resultsimage.html',
                       {'sentiment': emotions_dict, 'text': finalText, 'analyzed_image_path': useFile})
-
+'''
 
 def productanalysis(request):
     if request.method == 'POST':
@@ -265,10 +235,6 @@ def productanalysis(request):
 
 
 # Text sentiment Analysis - Detect Language and use corresponding model for sentiment score
-
-nltk.download('vader_lexicon')
-
-def detect_language(texts):
     """Detects the language of the given text using spaCy."""
     detected_languages = []
     for text in texts:
@@ -280,64 +246,54 @@ def detect_language(texts):
     # Determine the most common detected language
     return max(set(detected_languages), key=detected_languages.count)
 
-def analyze_sentiment(text, language):
-    """Performs sentiment analysis based on the detected language."""
-    if language == "es":  # Spanish using Spanish NLP Classifier
-            sc = classifiers.SpanishClassifier(model_name="sentiment_analysis")
-            result_classifier = sc.predict(text)
-            print(result_classifier)
-            return {
-                "pos": result_classifier.get("positive", 0.0),
-                "neu": result_classifier.get("neutral", 0.0),
-                "neg": result_classifier.get("negative", 0.0)
-            }
-    else:
-        translator  = Translator() #Use the imported google translator
-        english_text = translator.translate(text, src=language, dest='en')
-        translated_text = english_text.text
+class SentimentScore(BaseModel):
+    pos: float
+    neu: float
+    neg: float
 
-        scores = sentiment_analyzer_scores(translated_text)
-        return {
-            "pos": scores["pos"],
-            "neu": scores["neu"],
-            "neg": scores["neg"]
-        }
+def gemini_sentiment_analysis(text, model="gemini-2.0-flash"):
+    """
+    Calls the Gemini API to perform sentiment analysis on the provided text.
+    
+    Args:
+        text (str): The input text for sentiment analysis.
+        model (str): The Gemini model to use. Default is "gemini-2.0-flash".
+        
+    Returns:
+        dict: A dictionary containing sentiment analysis results, e.g. {'pos': 0.7, 'neu': 0.2, 'neg': 0.1}
+    """
+    # Construct a prompt specifically designed to extract sentiment analysis scores
+    # Customize the prompt as needed based on how Gemini expects instructions.
+    prompt = (
+        "Perform sentiment analysis on the following text. "
+        "Return a JSON object with keys 'pos', 'neu', and 'neg' representing the positive, neutral, and negative sentiment scores respectively:\n\n"
+        f"{text}"
+    )
 
-def create_word_correlation_heatmap(text):
-    # 1. Text Preprocessing
-    tokens = word_tokenize(text.lower())
-    stop_words = set(stopwords.words('english'))
-    table = str.maketrans('', '', string.punctuation)
-    stripped = [w.translate(table) for w in tokens]
-    words = [word for word in stripped if word.isalpha() and word not in stop_words]
-
-    # 2. Word Co-occurrence Matrix
-    vocabulary = sorted(list(set(words)))
-    co_occurrence_matrix = pd.DataFrame(0, index=vocabulary, columns=vocabulary)
-
-    window_size = 4  # Adjust window size as needed
-
-    for i in range(len(words)):
-        for j in range(max(0, i - window_size), min(len(words), i + window_size + 1)):
-            if i != j:
-                co_occurrence_matrix.loc[words[i], words[j]] += 1
-
-    # 3. Correlation Matrix
-    correlation_matrix = co_occurrence_matrix.corr()
-
-    # 4. Heatmap Visualization
-    plt.figure(figsize=(12, 10))
-    sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm')
-    plt.title('Word Correlation Heatmap')
-    plt.tight_layout()
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-    plt.close()
-
-    return image_base64
-
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    
+    # Call the Gemini API using the client
+    try:
+        response = client.models.generate_content(
+            model=model,
+            contents=prompt,
+            config={
+                'response_mime_type': 'application/json',
+                'response_schema': SentimentScore,
+            },
+        )
+        # Log the raw response for debugging
+        logging.info("Gemini raw response: %s", response.text)
+        
+        # Assume the response.text is a JSON formatted string
+        result = json.loads(response.text)
+        
+    except Exception as e:
+        logging.error("Error during Gemini API call: %s", e)
+        # Optionally, define a fallback sentiment result or raise an error
+        result = {"pos": 0.0, "neu": 0.0, "neg": 0.0}
+    
+    return result
 
 def textanalysis(request):
     """Performs sentiment analysis for the single line text"""
@@ -346,8 +302,8 @@ def textanalysis(request):
         final_comment = text_data.split('.')
         result = {}
         finalText = final_comment
-        image_base64 = create_word_correlation_heatmap(text_data)
 
+        '''
         logging.info("Text Data: %s", text_data)  # Debugging
         lang = detect_language(final_comment)
         logging.info("Detected Language: %s", lang)  # Debugging
@@ -365,234 +321,71 @@ def textanalysis(request):
                 'neu': result_classifier.get('neutral', 0.0),
                 'neg': result_classifier.get('negative', 0.0)
             }
-        print("Sentiment Scores:", sentiment_scores)  # Debugging
+        '''
+        result = gemini_sentiment_analysis(text_data)
+        # logging.info("Sentiment Scores: %s", str(sentiment_scores))  # Debugging
+        logging.info("result: %s", result)  # Debugging
 
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False,
-                'heatmap_image': image_base64})
+        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False,})
 
-
-        # Making sure sentences with floating point numbers are getting split correctly
-        # Sentences are split by sentence-ending delimiters . ? !
-        sentences =  re.split(r'(?<!\d)[.!?]+(?!\d)', text_data)
-        sentences = [s.strip() for s in sentences if s.strip()]
-
-        detected_language = detect_language(sentences)
-        print(detected_language)
-        sentiment_result = analyze_sentiment(text_data, detected_language)
-
-        return render(request, 'realworld/results.html', {'sentiment': sentiment_result,
-                                                          'text' : sentences,
-                                                          "language": detected_language.upper(),
-                                                          'reviewsRatio': {},
-                                                          'totalReviews': 1,
-                                                          'showReviewsRatio': False
-                                                          })
     else:
         note = "Enter the Text to be analysed!"
         return render(request, 'realworld/textanalysis.html', {'note': note, 'heatmap_image': image_base64})
 
-def create_sentence_correlation_heatmap(texts):
-    all_sentences = []
-    for text in texts:
-        sentences = sent_tokenize(text)
-        all_sentences.extend(sentences)
-
-    vocabulary = sorted(list(set(all_sentences)))
-    co_occurrence_matrix = pd.DataFrame(0, index=vocabulary, columns=vocabulary)
-
-    window_size = len(texts) #co-occur if in same batch.
-
-    for i in range(len(all_sentences)):
-        for j in range(len(all_sentences)):
-            if i != j:
-                if all_sentences[i] in sent_tokenize(texts[i//len(sent_tokenize(texts[0]))]) and all_sentences[j] in sent_tokenize(texts[j//len(sent_tokenize(texts[0]))]):
-                    co_occurrence_matrix.loc[all_sentences[i], all_sentences[j]] += 1
-
-    correlation_matrix = co_occurrence_matrix.corr()
-
-    plt.figure(figsize=(12, 10))
-    sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm')
-    plt.title('Sentence Correlation Heatmap')
-    plt.tight_layout()
-
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-    plt.close()
-    print("Sentiment Sentence Scores:", correlation_matrix)  # Debugging
-    return image_base64
-
 def batch_analysis(request):
-    """Performs sentiment analysis for multiple text lines"""
-
-    if request.method == 'POST':
-        texts_orig = request.POST.get("batchTextField", "")
-        texts = texts_orig.split('\n')
-        texts = [t.strip() for t in texts if t.strip()]
-
-        # Initialize aggregate sentiment scores
-        total_sentiment = {
-            'pos': 0.0,
-            'neg': 0.0,
-            'neu': 0.0
-        }
-
-        # Process each text
-        individual_results = {}  # Changed from list to dictionary
-        for idx, text in enumerate(texts):
-            final_comment = text.split('.')
-            if detect_language(final_comment):
-                result = detailed_analysis(final_comment)
-            else:
-                sc = classifiers.SpanishClassifier(model_name="sentiment_analysis")
-                result_string = ' '.join(final_comment)
-                result_classifier = sc.predict(result_string)
-                result = {
-                    'pos': result_classifier.get('positive', 0.0),
-                    'neg': result_classifier.get('negative', 0.0),
-                    'neu': result_classifier.get('neutral', 0.0)
-                }
-
-            # Add to totals
-            total_sentiment['pos'] += result['pos']
-            total_sentiment['neg'] += result['neg']
-            total_sentiment['neu'] += result['neu']
-
-            # Store individual results with index as key
-            individual_results[str(idx)] = {
-                'text': text,
-                'sentiment': result
-            }
-
-        # Calculate average sentiment
-        num_texts = len(texts) or 1
-        avg_sentiment = {
-            'pos': total_sentiment['pos'] / num_texts,
-            'neg': total_sentiment['neg'] / num_texts,
-            'neu': total_sentiment['neu'] / num_texts
-        }
-
-        heatmap_image = create_sentence_correlation_heatmap(texts)
-
-        # optional field: get as csv
-        if request.POST.get('download_csv'):
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="sentiment_analysis_results.csv"'
-
-            writer = csv.writer(response)
-            writer.writerow(['Index', 'Text', 'Positive', 'Negative', 'Neutral'])
-            for idx, item in individual_results.items():
-                writer.writerow([idx, item['text'], item['sentiment']['pos'], item['sentiment']['neg'], item['sentiment']['neu']])
-
-            return response
-
-        return render(request, 'realworld/results.html', {
-            'sentiment': avg_sentiment,
-            'text': texts,
-            'reviewsRatio': individual_results,  # Now a dictionary
-            'totalReviews': len(texts),
-            'showReviewsRatio': True,
-            'heatmap_image': heatmap_image,
-            'texts_orig': request.POST.get("batchTextField", ""),
-            'is_batch': True,
-            'texts_orig': request.POST.get("batchTextField", ""),
-            'is_batch': True,
-            'heatmap_image': heatmap_image,
-            'texts_orig': request.POST.get("batchTextField", ""),
-            'is_batch': True
-        })
-    return render(request, 'realworld/batch_analysis.html')
+    logging.info("Batch analysis called! Woah!")
+    pass
 
 # End of text sentiment analysis
 
+def scrap_social_media(url):
+    return """
+        I am so sad today! :(
+        I don't know what to do. I feel like crying. :(
+        I just want to be happy again. :(
+        I miss my friends. :(
+        I miss my family. :(
+        I miss my life. :(
+    """
+
 def fbanalysis(request):
     if request.method == 'POST':
-        current_directory = os.path.dirname(__file__)
-        result = fb_sentiment_score()
+        rquest_url = request.POST.get("blogname", "")
 
-        csv_file_fb = 'fb_sentiment.csv'
-        csv_file_path = os.path.join(current_directory, csv_file_fb)
+        scrapped_data = scrap_social_media(rquest_url)
 
-        # Open the CSV file and read its content
-        with open(csv_file_path, 'r') as csv_file:
-            # Use DictReader to read CSV data into a list of dictionaries
-            csv_reader = csv.DictReader(csv_file)
-            data = [row for row in csv_reader]
+        logging.info("scrapped_data: %s", scrapped_data)  # Debugging
 
-        text_dict = {"reviews": data}
-        print("text_dict:", text_dict["reviews"])
-        # Convert the list of dictionaries to a JSON array
-        json_data = json.dumps(text_dict, indent=2)
-
-        reviews = []
-
-        for item in text_dict["reviews"]:
-            #print("item :",item)
-            reviews.append(item["FBPost"])
-        finalText = reviews
+        result = gemini_sentiment_analysis(scrapped_data)
 
 
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
-    else:
-        note = "Please Enter the product blog link for analysis"
-        return render(request, 'realworld/productanalysis.html', {'note': note})
+        # logging.info("Sentiment Scores: %s", str(sentiment_scores))  # Debugging
+        logging.info("result: %s", result)  # Debugging
+
+
+        return render(request, 'realworld/results.html', {'sentiment': result, 'text': scrapped_data.split("\n"), 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
 
 def twitteranalysis(request):
     if request.method == 'POST':
-        current_directory = os.path.dirname(__file__)
-        result = twitter_sentiment_score()
+        rquest_url = request.POST.get("blogname", "")
 
-        csv_file_fb = 'twitt.csv'
-        csv_file_path = os.path.join(current_directory, csv_file_fb)
+        scrapped_data = scrap_social_media(rquest_url)
 
-        # Open the CSV file and read its content
-        with open(csv_file_path, 'r') as csv_file:
-            # Use DictReader to read CSV data into a list of dictionaries
-            csv_reader = csv.DictReader(csv_file)
-            data = [row for row in csv_reader]
+        result = gemini_sentiment_analysis(scrapped_data)
 
-        text_dict = {"reviews": data}
-        print("text_dict:", text_dict["reviews"])
-        # Convert the list of dictionaries to a JSON array
-        json_data = json.dumps(text_dict, indent=2)
+        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : scrapped_data.split("\n"), 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
 
-        reviews = []
-
-        for item in text_dict["reviews"]:
-            #print("item :",item)
-            reviews.append(item["review"])
-        finalText = reviews
-
-
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
-    else:
-        note = "Please Enter the product blog link for analysis"
-        return render(request, 'realworld/productanalysis.html', {'note': note})
 
 def redditanalysis(request):
     if request.method == 'POST':
-        blogname = request.POST.get("blogname", "")  # Get the Reddit post URL from the form
-        fetched_data = fetch_reddit_post(blogname)  # Fetch the Reddit post details
+        rquest_url = request.POST.get("blogname", "")
 
-        # Combine the fetched data (title, body, comments) into a single list for analysis
-        data = [fetched_data["title"], fetched_data["body"]] + fetched_data["comments"]
-        # Perform sentiment analysis
-        result = reddit_sentiment_score(data)
+        scrapped_data = scrap_social_media(rquest_url)
 
-        # Combine the title, body, and comments into a single list for displaying on the results page
-        reviews = [f"Title: {fetched_data['title']}", f"Body: {fetched_data['body']}"] + fetched_data["comments"]
+        result = gemini_sentiment_analysis(scrapped_data)
 
-        return render(request, 'realworld/results.html', {
-            'sentiment': result,  # Sentiment analysis result
-            'text': reviews,      # Display the text analyzed (title, body, comments)
-            'reviewsRatio': {},   # Placeholder (optional, for further analysis)
-            'totalReviews': len(reviews),  # Total number of items analyzed
-            'showReviewsRatio': False
-        })
-    else:
-        note = "Enter the Reddit post URL for analysis"
-        return render(request, 'realworld/redditanalysis.html', {'note': note})
+        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : scrapped_data.split("\n"), 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
+
 
 def audioanalysis(request):
     if request.method == 'POST':

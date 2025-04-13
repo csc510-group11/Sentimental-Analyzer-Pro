@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from realworld.newsScraper import scrapNews, getNewsResults
+from sentimental_analysis.realworld.scrapers.newsScraper import scrapNews, getNewsResults
 
 class TestNewsScraper(unittest.TestCase):
 

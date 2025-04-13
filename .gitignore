@@ -53,3 +53,7 @@ env/
 
 .coverage
 
+/playground
+
+.env
+

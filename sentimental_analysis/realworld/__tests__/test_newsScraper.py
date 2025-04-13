@@ -9,7 +9,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 import json
 # from newsScraper import scrapNews, getNewsResults
-from realworld.newsScraper import scrapNews, getNewsResults
+from sentimental_analysis.realworld.scrapers.newsScraper import scrapNews, getNewsResults
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 

@@ -12,14 +12,6 @@ from pdfminer.converter import XMLConverter, HTMLConverter, TextConverter
 from pdfminer.layout import LAParams
 from io import StringIO
 
-from datetime import datetime
-import nltk
-from nltk.corpus import stopwords
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from nltk.stem import PorterStemmer
-from nltk.tokenize import word_tokenize
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-
 
 # Unit Test Case for Audio, Product, Document Sentiment Analyzer
 class AllFunctionalityTestCase(unittest.TestCase):

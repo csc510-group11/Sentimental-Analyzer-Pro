@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from realworld.reddit_scrap import *
+from sentimental_analysis.realworld.scrapers.reddit_scrap import *
 from realworld.views import *
 
 @pytest.fixture
