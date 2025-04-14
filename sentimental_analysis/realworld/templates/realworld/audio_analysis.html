@@ -1,0 +1,113 @@
+{% extends 'realworld/base.html' %}
+{% block title %}Audio Analysis - Sentiment Analyzer Pro{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h1 class="display-4 text-center mb-4">Audio Analysis</h1>
+  
+  <!-- Option 1: Upload an Audio File -->
+  <div class="mb-4">
+    <h5>Upload an Audio File:</h5>
+    <input type="file" id="fileUpload" name="fileUpload" accept="audio/*" class="form-control">
+  </div>
+
+  <!-- Audio Preview Section -->
+  <div class="mb-4 text-center" id="audioPreviewContainer" style="display:none;">
+    <h5>Audio Preview:</h5>
+    <audio id="audioPreview" controls style="width: 100%; max-width: 500px;"></audio>
+  </div>
+  
+  <hr>
+  
+  <!-- Option 2: Record Audio -->
+  <div class="mb-4">
+    <h5>Or Record Audio:</h5>
+    <button id="recordButton" class="btn btn-primary">Start Recording</button>
+    <button id="stopButton" class="btn btn-secondary" disabled>Stop Recording</button>
+    <p id="recordStatus" class="mt-2"></p>
+  </div>
+  
+  <!-- The form used to submit audio -->
+  <!-- The hidden file input ("audioUpload") will be populated either by upload or recording -->
+  <form id="audioForm" action="{% url 'audio_analysis' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" id="audioUpload" name="audio" accept="audio/*" style="display: none;">
+    <div class="text-center">
+      <button type="submit" id="submitButton" class="btn btn-success btn-lg">Submit Audio</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Option 1: Handling file upload
+  document.getElementById('fileUpload').addEventListener('change', function() {
+    const hiddenInput = document.getElementById('audioUpload');
+    hiddenInput.files = this.files;
+
+    if(this.files.length > 0) {
+      const file = this.files[0];
+      // Display audio preview using a temporary URL
+      const audioPreview = document.getElementById('audioPreview');
+      audioPreview.src = URL.createObjectURL(file);
+      document.getElementById('audioPreviewContainer').style.display = 'block';
+    }
+  });
+
+  // Option 2: Recording using MediaRecorder
+  const recordButton = document.getElementById("recordButton");
+  const stopButton = document.getElementById("stopButton");
+  const recordStatus = document.getElementById("recordStatus");
+  let mediaRecorder;
+  let audioChunks = [];
+
+  recordButton.addEventListener("click", async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.start();
+      recordStatus.textContent = "Recording...";
+      recordButton.disabled = true;
+      stopButton.disabled = false;
+      audioChunks = [];
+      mediaRecorder.addEventListener("dataavailable", event => {
+        audioChunks.push(event.data);
+      });
+    } catch (err) {
+      alert("Error accessing microphone: " + err);
+    }
+  });
+
+  stopButton.addEventListener("click", () => {
+    mediaRecorder.stop();
+    recordStatus.textContent = "Recording stopped.";
+    recordButton.disabled = false;
+    stopButton.disabled = true;
+
+    mediaRecorder.addEventListener("stop", () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+      // Convert the blob into a File object, as if the user selected it
+      const recordedFile = new File([audioBlob], "recorded_audio.wav", { type: 'audio/wav' });
+
+      // Update hidden file input to mimic file selection.
+      const hiddenInput = document.getElementById("audioUpload");
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(recordedFile);
+      hiddenInput.files = dataTransfer.files;
+
+      // Show preview for recorded audio.
+      const audioPreview = document.getElementById('audioPreview');
+      audioPreview.src = URL.createObjectURL(recordedFile);
+      document.getElementById('audioPreviewContainer').style.display = 'block';
+    });
+  });
+
+  // Provide feedback on form submission (disable button and show spinner)
+  document.getElementById('audioForm').addEventListener('submit', function() {
+    const submitButton = document.getElementById('submitButton');
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+  });
+</script>
+{% endblock %}
