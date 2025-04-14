@@ -60,3 +60,4 @@ env/
 #macOS
 .DS_Store
 
+venv
