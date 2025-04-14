@@ -1,103 +1,49 @@
-<!DOCTYPE html>
-<html style="font-size: 16px;">
-{% load static %}
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="utf-8">
-    <meta name="keywords" content="">
-    <meta name="description" content="">
-    <meta name="page_type" content="np-template-header-footer-from-plugin">
-    <title>Home Page</title>
-    <link rel="stylesheet" href="{% static "css/nicepage.css" %}" media="screen">
-<link rel="stylesheet" href="{% static "css/Page-1.css" %}" media="screen">
-    <script class="u-script" src="{% static "js/jquery.js" %}" type="text/javascript" defer=""></script>
-    <script class="u-script" type="text/javascript" src="{% static "js/nicepage.js" %}" defer=""></script>
-    <meta name="generator" content="Nicepage 2.28.1, nicepage.com">
-    <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i">
-    <link id="u-page-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald:200,300,400,500,600,700">
-    
-    
-    
-    <script type="application/ld+json">{
-		"@context": "http://schema.org",
-		"@type": "Organization",
-		"name": "Site1",
-		"url": "index.html"
-}</script>
-    <meta property="og:title" content="Page 1">
-    <meta property="og:type" content="website">
-    <meta name="theme-color" content="#478ac9">
-    <link rel="canonical" href="index.html">
-    <meta property="og:url" content="index.html">
-  </head>
-  <body data-home-page="Page-1.html" data-home-page-title="Page 1" class="u-body"><header class="u-align-center-sm u-align-center-xs u-clearfix u-gradient u-header u-header" id="sec-0ea5"><div class="u-clearfix u-sheet u-sheet-1">
-        <nav class="u-align-left u-menu u-menu-dropdown u-offcanvas u-menu-1">
-          <div class="menu-collapse" style="font-size: 1rem;">
-            <a class="u-button-style u-nav-link u-text-black" href="#">
-              <svg class="u-svg-link" preserveAspectRatio="xMidYMin slice" viewBox="0 0 302 302" style=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svg-8a8f"></use></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="svg-8a8f" x="0px" y="0px" viewBox="0 0 302 302" style="enable-background:new 0 0 302 302;" xml:space="preserve" class="u-svg-content"><g><rect y="36" width="302" height="30"></rect><rect y="236" width="302" height="30"></rect><rect y="136" width="302" height="30"></rect>
-</g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-            </a>
-          </div>
-          <div class="u-custom-menu u-nav-container">
-            <ul class="u-nav u-unstyled u-nav-1"><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-black u-text-hover-palette-2-base" href="{% url 'product analysis' %}" style="padding: 10px 64px;">Product Analysis</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-black u-text-hover-palette-2-base" href="{% url 'input' %}" style="padding: 10px 64px;">Document Analysis</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-black u-text-hover-palette-2-base" href="{% url 'inputimage' %}" style="padding: 10px 64px;">Image Analysis</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-black u-text-hover-palette-2-base" href="{% url 'text analysis' %}" style="padding: 10px 64px;">Text</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-black u-text-hover-palette-2-base" href="{% url 'audio analysis' %}" style="padding: 10px 64px;">Audio</a>
-</li></ul>
-          </div>
-          <div class="u-custom-menu u-nav-container-collapse">
-            <div class="u-align-center u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav">
-              <div class="u-menu-close"></div>
-              <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2"><li class="u-nav-item"><a class="u-button-style u-nav-link"  href="{% url 'product analysis' %}" style="padding: 10px 64px;">Product Analysis</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link" href="{% url 'input' %}" style="padding: 10px 64px;">Document Analysis</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link" href="{% url 'inputimage' %}" style="padding: 10px 64px;">Image Analysis</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link" href="{% url 'text analysis' %}" style="padding: 10px 64px;">Text</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link" href="{% url 'audio analysis' %}" style="padding: 10px 64px;">Audio</a>
-</li></ul>
-            </div>
-            <div class="u-black u-menu-overlay u-opacity u-opacity-70"></div>
-          </div>
-        </nav>
-        <nav class="u-align-left u-menu u-menu-dropdown u-offcanvas u-menu-2">
-          <div class="menu-collapse" style="font-size: 1rem;">
-            <a class="u-button-style u-nav-link" href="#">
-              <svg class="u-svg-link" preserveAspectRatio="xMidYMin slice" viewBox="0 0 302 302" style=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svg-8a8f"></use></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="svg-8a8f" x="0px" y="0px" viewBox="0 0 302 302" style="enable-background:new 0 0 302 302;" xml:space="preserve" class="u-svg-content"><g><rect y="36" width="302" height="30"></rect><rect y="236" width="302" height="30"></rect><rect y="136" width="302" height="30"></rect>
-</g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-            </a>
-          </div>
-          <div class="u-custom-menu u-nav-container">
-            <ul class="u-nav u-unstyled u-nav-3"><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="{% url 'analysis' %}" style="padding: 10px 64px;">Home</a>
-</li></ul>
-          </div>
-          <div class="u-custom-menu u-nav-container-collapse">
-            <div class="u-align-center u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav">
-              <div class="u-menu-close"></div>
-              <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-4"><li class="u-nav-item"><a class="u-button-style u-nav-link" href="{% url 'analysis' %}" style="padding: 10px 64px;">Home</a>
-</li></ul>
-            </div>
-            <div class="u-black u-menu-overlay u-opacity u-opacity-70"></div>
-          </div>
-        </nav>
-      </div></header>
-    
+{% extends 'realworld/base.html' %}
 
+{% block title %}Text Analysis - Sentiment Analyzer Pro{% endblock %}
 
-
-<h1 style="margin: auto; text-align: center; font-family: Ranchers;">{{ note }}</h1>
-<form action = "{% url "text analysis" %}" method = "post" enctype="multipart/form-data">
+{% block content %}
+<div class="container my-5">
+  <div class="text-center mb-4">
+    <h1 class="display-4">Text Analysis</h1>
+    {% if note %}
+      <p class="lead">{{ note }}</p>
+    {% endif %}
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form id="textAnalysisForm" action="{% url 'text_analysis' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-    <label for = "Text"></label>
-    <div class="container" style="width: 100%;">
-    <textarea class="form-control form-control-lg" type="textarea" name="Text" rows = "10" cols="50" >
-    </textarea>
-    <br>
-    <br>
-    <button class="btn btn-primary btn-lg" style="display: flex; align-items: center; justify-content: center;" type ="submit">Submit</button>
+        <div class="mb-3">
+          <label for="text" class="form-label">Enter your text for analysis:</label>
+          <textarea name="text" id="text" class="form-control form-control-lg" rows="10" placeholder="Enter your text here..."></textarea>
+          <div id="textHelp" class="form-text">
+            You can paste or type text. Maximum 5000 characters.
+            <span id="charCount">0/5000 characters</span>
+          </div>
+        </div>
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary btn-lg" id="submitButton">Submit</button>
+        </div>
+      </form>
     </div>
-</form>
+  </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block extra_scripts %}
+<script>
+// When the form is submitted, disable the button and display a spinner.
+document.getElementById("textAnalysisForm").addEventListener("submit", function() {
+  var submitButton = document.getElementById("submitButton");
+  submitButton.disabled = true;
+  submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+});
+
+// Live character count for the textarea.
+document.getElementById("text").addEventListener("input", function(){
+  var count = this.value.length;
+  document.getElementById("charCount").textContent = count + "/5000 characters";
+});
+</script>
+{% endblock %}
