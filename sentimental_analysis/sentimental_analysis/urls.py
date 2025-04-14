@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import re_path, include
+from django.urls import path, include
 
 # from django.conf.urls import url
 
@@ -23,24 +23,27 @@ from django.conf.urls.static import static
 import realworld.views
 from django.contrib.auth import views as auth_views
 urlpatterns = [
-    re_path('admin/', admin.site.urls),
-    re_path('auth/', include('authapp.urls')),
-
-    re_path('auth/login/', auth_views.LoginView.as_view(), name = 'login'),
-    re_path('auth/logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
-    re_path( r'^$',realworld.views.analysis,name='analysis'),
-    re_path(r'^inputimage',realworld.views.inputimage,name = 'inputimage'),
-    re_path(r'^input',realworld.views.input,name = 'input'),
-    re_path(r'^productanalysis',realworld.views.productanalysis,name = 'product analysis'),
-    re_path(r'^textanalysis',realworld.views.textanalysis,name = 'text analysis'),
-    re_path(r'^audioanalysis',realworld.views.audioanalysis,name = 'audio analysis'),
-    re_path(r'^livespeechanalysis',realworld.views.livespeechanalysis,name = 'live speech analysis'),
-    re_path(r'^fbanalysis',realworld.views.fbanalysis,name = 'fb analysis'),
-    re_path(r'^twitteranalysis',realworld.views.twitteranalysis,name = 'twitter analysis'),
-    re_path(r'^redditanalysis',realworld.views.redditanalysis,name = 'reddit analysis'),
-    re_path(r'^recordAudio', realworld.views.recordaudio, name = 'recordAudio'),
-    re_path(r'^newsanalysis',realworld.views.newsanalysis,name = 'news analysis'),
-    re_path(r'^batch_analysis',realworld.views.batch_analysis,name='batch_text_analysis'),
+    # Admin and authentication routes
+    path('admin/', admin.site.urls),
+    path('auth/', include('authapp.urls')),
+    path('auth/login/', auth_views.LoginView.as_view(), name='login'),
+    path('auth/logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+    
+    # Landing page / index
+    path('', realworld.views.index, name='index'),
+    
+    # Separate pages for each analysis feature
+    path('news-analysis/', realworld.views.newsanalysis, name='news_analysis'),
+    path('text-analysis/', realworld.views.textanalysis, name='text_analysis'),
+    path('image-analysis/', realworld.views.image_analysis, name='image_analysis'),
+    path('document-analysis/', realworld.views.document_analysis, name='document_analysis'),
+    path('audio-analysis/', realworld.views.audio_analysis, name='audio_analysis'),
+    
+    # Social media analysis can be grouped in one page or broken down further:
+    path('social-media-analysis/', realworld.views.social_media_analysis, name='social_media_analysis'),
+    path('facebook-analysis/', realworld.views.fbanalysis, name='fb_analysis'),
+    path('twitter-analysis/', realworld.views.twitteranalysis, name='twitter_analysis'),
+    path('reddit-analysis/', realworld.views.redditanalysis, name='reddit_analysis'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

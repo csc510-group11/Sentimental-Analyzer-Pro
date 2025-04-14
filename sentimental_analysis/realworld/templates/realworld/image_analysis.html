@@ -1,0 +1,105 @@
+{% extends 'realworld/base.html' %}
+
+{% block title %}Image Analysis - Sentiment Analyzer Pro{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="text-center mb-4">
+    <h1 class="display-4">Image Analysis</h1>
+    <p class="lead">Drag and drop or upload an image (JPG, PNG, etc.).</p>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <form id="imageForm" action="{% url 'image_analysis' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- Drag & Drop / File Upload Area -->
+        <div id="dropzone" class="border border-primary rounded p-5 text-center mb-4" style="cursor: pointer;">
+          <p id="dropzoneText">Drag & drop your image here or click to upload.</p>
+          <input type="file" id="fileInput" name="image" accept="image/*" style="display: none;">
+        </div>
+        <!-- Preview Area -->
+        <div id="previewArea" class="mb-4 text-center" style="display:none;">
+          <h5>Image Preview:</h5>
+          <img id="imgPreview" src="#" alt="Image Preview" class="img-fluid rounded" style="max-height: 400px;">
+        </div>
+        <div class="d-grid">
+          <button type="submit" id="submitButton" class="btn btn-primary btn-lg">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Get DOM elements
+  const dropzone = document.getElementById('dropzone');
+  const dropzoneText = document.getElementById('dropzoneText');
+  const fileInput = document.getElementById('fileInput');
+  const submitButton = document.getElementById('submitButton');
+  const previewArea = document.getElementById('previewArea');
+  const imgPreview = document.getElementById('imgPreview');
+
+  // Trigger file selection when dropzone is clicked
+  dropzone.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  // Highlight dropzone on drag over
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('bg-light');
+  });
+
+  // Remove highlight when drag leaves dropzone
+  dropzone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('bg-light');
+  });
+
+  // Handle drop event for file upload
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('bg-light');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      updatePreview(files[0]);
+    }
+  });
+
+  // Update dropzone text and preview when a file is selected via the file picker
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      updatePreview(fileInput.files[0]);
+    }
+  });
+
+  // Function to update the preview area
+  function updatePreview(file) {
+    // Update the dropzone text
+    dropzoneText.textContent = file.name;
+
+    // Validate that the file is an image
+    if (!file.type.startsWith("image/")) {
+      previewArea.style.display = "none";
+      return;
+    }
+
+    // Use FileReader to read the file as a Data URL and set it on the preview image
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      imgPreview.src = e.target.result;
+      previewArea.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Provide feedback on form submission (disable button and show spinner)
+  document.getElementById('imageForm').addEventListener('submit', () => {
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+  });
+</script>
+{% endblock %}

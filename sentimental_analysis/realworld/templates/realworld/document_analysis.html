@@ -1,0 +1,129 @@
+{% extends 'realworld/base.html' %}
+
+{% block title %}Document Analysis - Sentiment Analyzer Pro{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="text-center mb-4">
+    <h1 class="display-4">Document Analysis</h1>
+    <p class="lead">Drag and drop or upload a document (TXT or PDF, max 5KB).</p>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <form id="documentForm" action="{% url 'document_analysis' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- Drag & Drop / File Upload Area -->
+        <div id="dropzone" class="border border-primary rounded p-5 text-center mb-4" style="cursor: pointer;">
+          <p id="dropzoneText">Drag & drop your document here or click to upload.</p>
+          <input type="file" id="fileInput" name="document" accept=".txt,.pdf" style="display: none;">
+        </div>
+        <!-- Preview Area -->
+        <div id="previewArea" class="mb-4"></div>
+        <div class="d-grid">
+          <button type="submit" id="submitButton" class="btn btn-primary btn-lg">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Get DOM elements
+  const dropzone = document.getElementById('dropzone');
+  const dropzoneText = document.getElementById('dropzoneText');
+  const fileInput = document.getElementById('fileInput');
+  const submitButton = document.getElementById('submitButton');
+  const previewArea = document.getElementById('previewArea');
+
+  // Helper function to clear preview
+  function clearPreview() {
+    previewArea.innerHTML = "";
+  }
+  
+  // Trigger file selection when dropzone is clicked
+  dropzone.addEventListener('click', function() {
+    fileInput.click();
+  });
+
+  // Handle drag over event
+  dropzone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    dropzone.classList.add('bg-light');
+  });
+
+  // Handle drag leave event
+  dropzone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    dropzone.classList.remove('bg-light');
+  });
+
+  // Handle drop event for drag and drop file upload
+  dropzone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dropzone.classList.remove('bg-light');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      dropzoneText.textContent = files[0].name;
+      displayPreview(files[0]);
+    }
+  });
+
+  // Validate file size and update the dropzone text upon file selection,
+  // and display the preview.
+  fileInput.addEventListener('change', function() {
+    clearPreview();
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      if (file.size > 5120) { // 5KB = 5120 bytes
+        alert('File size exceeds 5KB. Please upload a smaller file.');
+        fileInput.value = "";
+        dropzoneText.textContent = "Drag & drop your document here or click to upload.";
+        clearPreview();
+      } else {
+        dropzoneText.textContent = file.name;
+        displayPreview(file);
+      }
+    }
+  });
+
+  // Function to display the preview
+  function displayPreview(file) {
+    clearPreview();
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const reader = new FileReader();
+
+    if (fileExtension === 'txt' || file.type.indexOf("text") !== -1) {
+      // For plain text files, read as text and display in a <pre> block.
+      reader.onload = function(e) {
+        previewArea.innerHTML = `<div class="card shadow-sm">
+          <div class="card-header bg-secondary text-white">Document Preview (Text)</div>
+          <div class="card-body"><pre>${e.target.result}</pre></div>
+        </div>`;
+      };
+      reader.readAsText(file);
+    } else if (fileExtension === 'pdf' || file.type.indexOf("pdf") !== -1) {
+      // For PDF files, read as data URL and embed in an iframe.
+      reader.onload = function(e) {
+        previewArea.innerHTML = `<div class="card shadow-sm">
+          <div class="card-header bg-secondary text-white">Document Preview (PDF)</div>
+          <div class="card-body">
+            <iframe src="${e.target.result}" width="100%" height="400" style="border: none;"></iframe>
+          </div>
+        </div>`;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewArea.innerHTML = `<p class="text-danger">Preview unavailable for this file type.</p>`;
+    }
+  }
+
+  // Provide user feedback by disabling the submit button on form submit
+  document.getElementById('documentForm').addEventListener('submit', function() {
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+  });
+</script>
+{% endblock %}

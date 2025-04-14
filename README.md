@@ -112,75 +112,35 @@ Although HTML and CSS are used for the front end, the users can merge the backen
 
 1. Clone this project:
 
-```
+```bash
 git clone https://github.com/SE-Group20/Sentimental-Analyzer-Pro.git
 ```
 
-2. Make sure you are using Python 3.10 or higher. You can get it here: <https://www.python.org/downloads/release/python-3115/>
+2. Navigate to the project directory:
 
-3. Create a Virtual Environment
-
-```
-python3.10 -m venv env
-source env/bin/activate
+```bash
+cd Sentimental-Analyzer-Pro
 ```
 
-4. Add environment variable
+3. Create a .env file in the root directory and add the following lines:
 
-For Windows:
-
-```
-set DJANGO_ALLOWED_HOSTS=0.0.0.0,localhost,127.0.0.1
-```
-
-For Linux (Ubuntu) and Max:
-
-```
-export DJANGO_ALLOWED_HOSTS=0.0.0.0,localhost,127.0.0.1
+```env
+GEMINI_API_KEY=<YOUR_GEMINI_API_KEY>
+DJANGO_ALLOWED_HOSTS=0.0.0.0,localhost,127.0.0.1
+DEFAULT_ADMIN_USERNAME=admin
+DEFAULT_ADMIN_PASSWORD=admin
+HF_API_TOKEN=<YOUR_HUGGINGFACE_API_TOKEN>
+HF_IMAGE_CAPTION_API_URL=https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base
+ASSEMBLYAI_API_KEY=<YOUR_ASSEMBLYAI_API_KEY>
 ```
 
-5. Install dependencies for the project from the root directory of the project:
+4. Use make to build and run the application.
 
-```
-pip3 install -r requirements.txt
-python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('averaged_perceptron_tagger')"
-```
-
-6. Install ffmpeg:
-For Windows:
-
-```
-winget install ffmpeg
+```bash
+make up
 ```
 
-For Linux (Ubuntu):
-
-```
-sudo apt install ffmpeg
-```
-
-For Mac:
-
-```
-brew install ffmpeg
-'''
-brew install ffmpeg
-```
-
-7. Run Django Server migrations manage.py (Note: Make sure you are in root directory of the project.)
-
-```
-python3 .\sentimental_analysis\manage.py makemigrations
-python3 .\sentimental_analysis\manage.py migrate
-```
-
-8. Run Django Server using manage.py (Note: Make sure you are in root directory of the project.)
-
-```
-python3 .\sentimental_analysis\manage.py runserver
-```
-
-9. Next, open your browser and type in `localhost:8000` in the search bar to open the user interface of the application.
+5. Next, open your browser and type in `localhost:8000` in the search bar to open the user interface of the application.
 
 Now, you are good to go.
 
