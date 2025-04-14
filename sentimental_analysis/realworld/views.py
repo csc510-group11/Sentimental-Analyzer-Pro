@@ -1,255 +1,72 @@
-import os, sys
+import os
 import json
-from io import StringIO
 from google import genai
-import subprocess
-import shutil
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
-import speech_recognition as sr
 from django.shortcuts import render
-from django.core.files.storage import FileSystemStorage
-from django.views.decorators.csrf import csrf_exempt
-from django.template.defaulttags import register
 from django.http import HttpResponse
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfpage import PDFPage
-from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
-from pydub import AudioSegment
-from sentimental_analysis.realworld.scrapers.newsScraper import *
-from realworld.utilityFunctions import *
-from sentimental_analysis.realworld.scrapers.reddit_scrap import *
+from realworld.scrapers.newsScraper import *
+from realworld.scrapers.reddit_scrap import *
+from realworld.models import SentimentScore
 from django.contrib.auth.decorators import login_required
-from realworld.cache_manager import AnalysisCache
-from realworld.cache_manager import AnalysisCache
-from pydantic import BaseModel
-
+import PyPDF2
+import base64
+import assemblyai as aai
+import tempfile
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def pdfparser(data):
-    fp = open(data, 'rb')
-    rsrcmgr = PDFResourceManager()
-    retstr = StringIO()
-    laparams = LAParams()
-    device = TextConverter(rsrcmgr, retstr, laparams=laparams)
-    interpreter = PDFPageInterpreter(rsrcmgr, device)
-
-    for page in PDFPage.get_pages(fp):
-        interpreter.process_page(page)
-        data = retstr.getvalue()
-
-    text_file = open("Output.txt", "w", encoding="utf-8")
-    text_file.write(data)
-
-    text_file = open("Output.txt", 'r', encoding="utf-8")
-    a = ""
-    for x in text_file:
-        if len(x) > 2:
-            b = x.split()
-            for i in b:
-                a += " " + i
-    final_comment = a.split('.')
-    return final_comment
-
 @login_required
-def analysis(request):
-    return render(request, 'realworld/index.html')
+def index(request):
+    note = "Welcome to the Sentiment Analysis App! Please select an analysis option from the menu."
+    return render(request, 'realworld/index.html', {'note': note})
 
-def detailed_analysis(result):
-    result_dict = {"pos": 0, "neu": 0, "neg": 0}
-    neg_count = 0
-    pos_count = 0
-    neu_count = 0
-    total_count = len(result)
+def social_media_analysis(request):
+    note = "This is a Social Media Analysis App that uses various models to analyze the sentiment of text, audio, and social media data."
+    return render(request, 'realworld/index.html', {'note': note})
 
-    if isinstance(result, str):
-        result = [result]
-
-    # logging.info("running detailed analysis on %s", result)
-    for item in result:
-        # cleantext = get_clean_text(str(item))
-        cleantext = str(item)
-        # print(cleantext)
-        # logging.info("cleaned text: %s", cleantext)
-        sentiment = sentiment_scores(cleantext)
-        # logging.info("sentiment: %s", sentiment)
-        pos_count += sentiment['pos']
-        neu_count += sentiment['neu']
-        neg_count += sentiment['neg']
-    total = pos_count + neu_count + neg_count
-    if(total>0):
-        pos_ratio = (pos_count/total)
-        neu_ratio = (neu_count/total)
-        neg_ratio = (neg_count/total)
-        result_dict['pos'] = pos_ratio
-        result_dict['neu'] = neu_ratio
-        result_dict['neg'] = neg_ratio
-    return result_dict
-
-def detailed_analysis_sentence(result):
-    sia = SentimentIntensityAnalyzer()
-    result_dict = {}
-    result_dict['compound'] = sia.polarity_scores(result)['compound']
-    return result_dict
-
-def input(request):
+def document_analysis(request):
     if request.method == 'POST':
-        file = request.FILES['document']
-        fs = FileSystemStorage()
-        fs.save(file.name, file)
-        pathname = 'sentimental_analysis/media/'
-        extension_name = file.name
-        extension_name = extension_name[len(extension_name) - 3:]
-        path = pathname + file.name
-        destination_folder = 'sentimental_analysis/media/document/'
-        shutil.copy(path, destination_folder)
-        useFile = destination_folder + file.name
-        result = {}
-        finalText = ''
-        if extension_name == 'pdf':
-            value = pdfparser(useFile)
-            result = detailed_analysis(value)
-            finalText = result
-        elif extension_name == 'txt':
-            text_file = open(useFile, 'r', encoding="utf-8")
-            a = ""
-            for x in text_file:
-                if len(x) > 2:
-                    b = x.split()
-                    for i in b:
-                        a += " " + i
-            final_comment = a.split('.')
-            text_file.close()
-            finalText = final_comment
-            result = detailed_analysis(final_comment)
-        folder_path = 'sentimental_analysis/media/'
-        files = os.listdir(folder_path)
-        for file in files:
-            file_path = os.path.join(folder_path, file)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+        document_text = None  # This will hold the text from the document
 
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text': finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
-    else:
-        note = "Please Enter the Document you want to analyze"
-        return render(request, 'realworld/home.html', {'note': note})
+        # Check if a file was uploaded using the field named 'document'
+        uploaded_file = request.FILES.get('document')
+        if uploaded_file:
+            # Enforce 5KB file size limit (5KB = 5120 bytes)
+            if uploaded_file.size > 5120:
+                return HttpResponse("File size exceeds 5KB limit.", status=400)
 
-def inputimage(request):
-    if request.method == 'POST':
-        return
-    '''
-        file = request.FILES['document']
-        fs = FileSystemStorage()
-        fs.save(file.name, file)
-        pathname = 'sentimental_analysis/media/'
-        extension_name = file.name
-        extension_name = extension_name[len(extension_name) - 3:]
-        path = pathname + file.name
-        destination_folder = 'sentimental_analysis/media/document/'
-        shutil.copy(path, destination_folder)
-        useFile = destination_folder + file.name
-        image = cv2.imread(useFile)
-        detected_emotion = DeepFace.analyze(image)
-
-        emotions_dict = {'happy': 0.0, 'sad': 0.0, 'neutral': 0.0}
-        for emotion in detected_emotion:
-            emotion_scores = emotion['emotion']
-            happy_score = emotion_scores['happy']
-            sad_score = emotion_scores['sad']
-            neutral_score = emotion_scores['neutral']
-
-            emotions_dict['happy'] += happy_score
-            emotions_dict['sad'] += sad_score
-            emotions_dict['neutral'] += neutral_score
-
-        total_score = sum(emotions_dict.values())
-        if total_score > 0:
-            for emotion in emotions_dict:
-                emotions_dict[emotion] /= total_score
-
-        print(emotions_dict)
-        finalText = max(emotions_dict, key=emotions_dict.get)
-        return render(request, 'realworld/resultsimage.html',
-                      {'sentiment': emotions_dict, 'text': finalText, 'analyzed_image_path': useFile})
-'''
-
-def productanalysis(request):
-    if request.method == 'POST':
-        blogname = request.POST.get("blogname", "")
-
-        text_file = open(
-            "Amazon_Comments_Scrapper/amazon_reviews_scraping/amazon_reviews_scraping/spiders/ProductAnalysis.txt", "w")
-        text_file.write(blogname)
-        text_file.close()
-
-        spider_path = r'Amazon_Comments_Scrapper/amazon_reviews_scraping/amazon_reviews_scraping/spiders/amazon_review.py'
-        output_file = r'Amazon_Comments_Scrapper/amazon_reviews_scraping/amazon_reviews_scraping/spiders/reviews.json'
-        command = f"scrapy runspider \"{spider_path}\" -o \"{output_file}\" "
-        result = subprocess.run(command, shell=True)
-
-        if result.returncode == 0:
-            print("Scrapy spider executed successfully.")
+            # Determine the file type based on the file extension
+            file_ext = uploaded_file.name.split('.')[-1].lower()
+            if file_ext == 'txt':
+                try:
+                    document_text = uploaded_file.read().decode('utf-8')
+                except UnicodeDecodeError:
+                    return HttpResponse("Error decoding text file.", status=400)
+            elif file_ext == 'pdf':
+                try:
+                    pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                    document_text = ""
+                    for page in pdf_reader.pages:
+                        text = page.extract_text()
+                        if text:
+                            document_text += text
+                except Exception as e:
+                    return HttpResponse("Error processing PDF file: " + str(e), status=400)
+            else:
+                return HttpResponse("Unsupported file type. Please upload a TXT or PDF file.", status=400)
         else:
-            print("Error executing Scrapy spider.")
+            return HttpResponse("No file uploaded.", status=400)
 
-        with open(r'Amazon_Comments_Scrapper/amazon_reviews_scraping/amazon_reviews_scraping/spiders/reviews.json',
-                  'r') as json_file:
-            json_data = json.load(json_file)
-        reviews = []
-        reviews2 = {
-            "pos": 0,
-            "neu": 0,
-            "neg": 0,
-        }
-        for item in json_data:
-            reviews.append(item['Review'])
-            r = detailed_analysis_sentence(item['Review'])
-            if(r != {}):
-                st = item['Stars']
-                if(st is not None):
-                    stars = int(float(st))
-                    if(stars != -1):
-                        if(stars >= 4):
-                            r['compound'] += 0.1
-                        elif(stars >= 2):
-                           continue
-                        else:
-                            r['compound'] -= 0.1
-                if(r['compound'] > 0.4):
-                    reviews2['pos'] += 1
-                elif(r['compound'] < -0.4):
-                    reviews2['neg'] += 1
-                else:
-                    reviews2['neu'] +=1
-        finalText = reviews
-        totalReviews = reviews2['pos'] + reviews2['neu'] + reviews2['neg']
-        result = detailed_analysis(reviews)
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': reviews2, 'totalReviews': totalReviews, 'showReviewsRatio': True})
+        if document_text:
+            result = gemini_sentiment_analysis(document_text)
 
+            return render(request, 'realworld/results.html', {'sentiment': result, 'text' : document_text, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False,})
+        else:
+            return HttpResponse("No document content found.", status=400)
+    
     else:
-        note = "Please Enter the product blog link for analysis"
-        return render(request, 'realworld/productanalysis.html', {'note': note})
-
-
-# Text sentiment Analysis - Detect Language and use corresponding model for sentiment score
-    """Detects the language of the given text using spaCy."""
-    detected_languages = []
-    for text in texts:
-        try:
-            lang = detect(text)
-            detected_languages.append(lang)
-        except Exception:
-            detected_languages.append("unknown")
-    # Determine the most common detected language
-    return max(set(detected_languages), key=detected_languages.count)
-
-class SentimentScore(BaseModel):
-    pos: float
-    neu: float
-    neg: float
+        # For GET requests, simply render the document analysis template
+        return render(request, 'realworld/document_analysis.html')
 
 def gemini_sentiment_analysis(text, model="gemini-2.0-flash"):
     """
@@ -298,45 +115,66 @@ def gemini_sentiment_analysis(text, model="gemini-2.0-flash"):
 def textanalysis(request):
     """Performs sentiment analysis for the single line text"""
     if request.method == 'POST':
-        text_data = request.POST.get("textField", "")
-        final_comment = text_data.split('.')
-        result = {}
-        finalText = final_comment
+        text_data = request.POST.get("text", "")
 
-        '''
-        logging.info("Text Data: %s", text_data)  # Debugging
-        lang = detect_language(final_comment)
-        logging.info("Detected Language: %s", lang)  # Debugging
-
-        if detect_language(final_comment) == 'en':
-            logging.info("using %s", final_comment)
-            result = detailed_analysis(final_comment)
-            logging.info("Sentiment Scores: %s", result)  # Debugging
-        else:
-            sc = classifiers.SpanishClassifier(model_name="sentiment_analysis")
-            result_string = ' '.join(final_comment)
-            result_classifier = sc.predict(result_string)
-            result = {
-                'pos': result_classifier.get('positive', 0.0),
-                'neu': result_classifier.get('neutral', 0.0),
-                'neg': result_classifier.get('negative', 0.0)
-            }
-        '''
         result = gemini_sentiment_analysis(text_data)
-        # logging.info("Sentiment Scores: %s", str(sentiment_scores))  # Debugging
-        logging.info("result: %s", result)  # Debugging
 
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False,})
-
+        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : text_data, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False,})
     else:
         note = "Enter the Text to be analysed!"
-        return render(request, 'realworld/textanalysis.html', {'note': note, 'heatmap_image': image_base64})
+        return render(request, 'realworld/textanalysis.html', {'note': note})
 
-def batch_analysis(request):
-    logging.info("Batch analysis called! Woah!")
-    pass
+def generate_emotion_caption(encoded_image):
+    # Optional: Customize prompt to ask for emotions
+    prompt_instruction = "Describe the scene in the image and include details about any emotions shown."
 
-# End of text sentiment analysis
+    headers = {"Authorization": f"Bearer {os.getenv('HF_API_TOKEN')}"}
+    api_url = os.getenv("HF_IMAGE_CAPTION_API_URL")
+    payload = {
+        "inputs": encoded_image,
+        "options": {"prompt": prompt_instruction}
+    }
+
+    response = requests.post(api_url, headers=headers, json=payload)
+    results = response.json()
+
+    # Depending on the API response, you might need to adjust how you extract the caption.
+    caption = results[0].get("generated_text", "")
+    return caption
+
+def image_analysis(request):
+    if request.method == "POST":
+        # Retrieve the uploaded image from the request
+        uploaded_image = request.FILES.get("image")
+        if not uploaded_image:
+            return HttpResponse("No image file provided.", status=400)
+        
+        try:
+            # Read the image and encode it in Base64
+            image_bytes = uploaded_image.read()
+            encoded_image = base64.b64encode(image_bytes).decode("utf-8")
+            
+            # Pass the Base64 string to the caption generation function.
+            # The function should be designed to accept the Base64 data.
+            caption = generate_emotion_caption(encoded_image)
+        except Exception as e:
+            return HttpResponse("Error generating caption: " + str(e), status=500)
+        
+        # Render the result page with the generated caption.
+        if caption.strip() == "":
+            return HttpResponse("No caption generated.", status=500)
+        
+        result = gemini_sentiment_analysis(caption)
+        
+        return render(request, 'realworld/resultsimage.html', {
+            'caption': caption,
+            'sentiment': result,
+            'encoded_image': "data:image/jpeg;base64," + encoded_image
+        })
+    
+    # For GET requests, simply render the image analysis upload form.
+    else:
+        return render(request, 'realworld/image_analysis.html')
 
 def scrap_social_media(url):
     return """
@@ -375,7 +213,6 @@ def twitteranalysis(request):
 
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : scrapped_data.split("\n"), 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
 
-
 def redditanalysis(request):
     if request.method == 'POST':
         rquest_url = request.POST.get("blogname", "")
@@ -386,137 +223,42 @@ def redditanalysis(request):
 
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : scrapped_data.split("\n"), 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
 
+def transcribe_audio(audio_data):
+    # Set your AssemblyAI API key.
+    aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
+    transcriber = aai.Transcriber()
 
-def audioanalysis(request):
+    # Write binary audio data to a temporary file (with .wav extension).
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+        temp_file.write(audio_data)
+        temp_file_path = temp_file.name
+
+    try:
+        # Transcribe the audio using the temporary file path.
+        transcript = transcriber.transcribe(temp_file_path)
+        transcript_text = transcript.text
+    except Exception as e:
+        # Ensure cleanup in case of an error.
+        os.remove(temp_file_path)
+        raise e
+
+    # Clean up the temporary file.
+    os.remove(temp_file_path)
+
+    return transcript_text
+
+def audio_analysis(request):
     if request.method == 'POST':
-        file = request.FILES['audioFile']
-        fs = FileSystemStorage()
-        fs.save(file.name, file)
-        pathname = "sentimental_analysis/media/"
-        extension_name = file.name
-        extension_name = extension_name[len(extension_name) - 3:]
-        path = pathname + file.name
-        result = {}
-        destination_folder = 'sentimental_analysis/media/audio/'
-        shutil.copy(path, destination_folder)
-        useFile = destination_folder + file.name
-        text = speech_to_text(useFile)
-        finalText = text
-        result = detailed_analysis(text)
-
-        folder_path = 'sentimental_analysis/media/'
-        files = os.listdir(folder_path)
-        for file in files:
-            file_path = os.path.join(folder_path, file)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
+        transcribed_text = transcribe_audio(request.FILES.get('audio').read())
+        result = gemini_sentiment_analysis(transcribed_text)
+        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : transcribed_text, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
     else:
-        note = "Please Enter the audio file you want to analyze"
-        return render(request, 'realworld/audio.html', {'note': note})
+        note = "Please Enter the Audio file you want to analyze"
+        return render(request, 'realworld/audio_analysis.html', {'note': note})
 
-def livespeechanalysis(request):
-    if request.method == 'POST':
-        my_file_handle = open(
-            'sentimental_analysis/realworld/recordedAudio.txt')
-        audioFile = my_file_handle.read()
-        result = {}
-        text = speech_to_text(audioFile)
-
-        finalText = text
-        result = detailed_analysis(text)
-        folder_path = 'sentimental_analysis/media/recordedAudio/'
-        files = os.listdir(folder_path)
-        for file in files:
-            file_path = os.path.join(folder_path, file)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
-
-
-@csrf_exempt
-def recordaudio(request):
-    if request.method == 'POST':
-        audio_file = request.FILES['liveaudioFile']
-        fs = FileSystemStorage()
-        fs.save(audio_file.name, audio_file)
-        folder_path = 'sentimental_analysis/media/'
-        files = os.listdir(folder_path)
-
-        pathname = "sentimental_analysis/media/"
-        extension_name = audio_file.name
-        extension_name = extension_name[len(extension_name) - 3:]
-        path = pathname + audio_file.name
-        audioName = audio_file.name
-        destination_folder = 'sentimental_analysis/media/recordedAudio/'
-        shutil.copy(path, destination_folder)
-        useFile = destination_folder + audioName
-        for file in files:
-            file_path = os.path.join(folder_path, file)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-
-        audio = AudioSegment.from_file(useFile)
-        audio = audio.set_sample_width(2)
-        audio = audio.set_frame_rate(44100)
-        audio = audio.set_channels(1)
-        audio.export(useFile, format='wav')
-
-        text_file = open("sentimental_analysis/realworld/recordedAudio.txt", "w")
-        text_file.write(useFile)
-        text_file.close()
-        response = HttpResponse('Success! This is a 200 response.', content_type='text/plain', status=200)
-        return response
-
-analysis_cache = AnalysisCache()
 def newsanalysis(request):
     if request.method == 'POST':
-        topicname = request.POST.get("topicname", "")
-        scrapNews(topicname, 10)
-
-        with open(r'sentimental_analysis/realworld/news.json', 'r') as json_file:
-            json_data = json.load(json_file)
-        news = []
-        for item in json_data:
-            news.append(item['Summary'])
-
-        cached_sentiment, cached_text = analysis_cache.get_analysis(topicname, news)
-
-        if cached_sentiment and cached_text:
-            print('loaded sentiment')
-            return render(request, 'realworld/results.html', {
-                'sentiment': cached_sentiment,
-                'text': cached_text,
-                'reviewsRatio': {},
-                'totalReviews': 1,
-                'showReviewsRatio': False
-            })
-
-        finalText = news
-        result = detailed_analysis(news)
-        print('cached sentiment')
-        analysis_cache.set_analysis(topicname, news, result, finalText)
-
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : finalText, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
-
+        pass
     else:
         return render(request, 'realworld/index.html')
-
-def speech_to_text(filename):
-    r = sr.Recognizer()
-    with sr.AudioFile(filename) as source:
-        audio_data = r.record(source)
-        text = r.recognize_google(audio_data)
-        return text
-
-
-def sentiment_analyzer_scores(sentence):
-    analyser = SentimentIntensityAnalyzer()
-    score = analyser.polarity_scores(sentence)
-    print(score)
-    return score
-
-
-@register.filter(name='get_item')
-def get_item(dictionary, key):
-    return dictionary.get(key, 0)
+    
