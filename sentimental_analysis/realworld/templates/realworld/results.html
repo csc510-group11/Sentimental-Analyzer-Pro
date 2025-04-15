@@ -7,9 +7,25 @@
   <!-- Page Header -->
   <div class="text-center mb-5">
     <h1 class="display-4">Analysis Result</h1>
-    <p class="lead">Here are the insights from your text analysis.</p>
+    <p class="lead">Here are the insights from your analysis.</p>
   </div>
-
+  
+  {% if encoded_image %}
+  <!-- Image Analysis Section -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-md-8">
+      <div class="card border-0 shadow-lg position-relative">
+        <img src="{{ encoded_image }}" class="img-fluid rounded" alt="Uploaded Image">
+        <button type="button" class="btn btn-primary position-absolute"
+                style="bottom: 15px; right: 15px;" data-bs-toggle="modal" data-bs-target="#captionModal">
+          View Caption
+        </button>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  
+  {% if text %}
   <!-- Analyzed Text Section -->
   <div class="row mb-5">
     <div class="col-12">
@@ -23,8 +39,9 @@
       </div>
     </div>
   </div>
-
-  <!-- Sentiment Charts Section -->
+  {% endif %}
+  
+  <!-- Sentiment Charts Section (common to both analysis types) -->
   <div class="row">
     <!-- Doughnut Chart for Sentiment Distribution -->
     <div class="col-md-6 mb-4">
@@ -33,7 +50,7 @@
           <strong>Sentiment Distribution</strong>
         </div>
         <div class="card-body">
-          <div id="distributionChart" style="height: 300px; width: 100%;"></div>
+          <div id="distributionChart" style="height:300px; width:100%;"></div>
         </div>
       </div>
     </div>
@@ -44,17 +61,37 @@
           <strong>Sentiment Graph</strong>
         </div>
         <div class="card-body">
-          <div id="graphChart" style="height: 300px; width: 100%;"></div>
+          <div id="graphChart" style="height:300px; width:100%;"></div>
         </div>
       </div>
     </div>
   </div>
-
+  
   <!-- Navigation -->
   <div class="text-center">
     <a href="{% url 'index' %}" class="btn btn-outline-secondary">Back to Home</a>
   </div>
 </div>
+
+{% if encoded_image %}
+<!-- Caption Modal (only for image analysis) -->
+<div class="modal fade" id="captionModal" tabindex="-1" aria-labelledby="captionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="captionModalLabel">Generated Caption</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ caption }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_scripts %}
@@ -62,7 +99,7 @@
 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 <script>
   window.onload = function () {
-    // Create the Doughnut Chart for Sentiment Distribution
+    // Create the Doughnut Chart for sentiment distribution
     var distributionChart = new CanvasJS.Chart("distributionChart", {
       animationEnabled: true,
       theme: "light2",
@@ -79,7 +116,7 @@
     });
     distributionChart.render();
     
-    // Create the Column Chart for Sentiment Graph
+    // Create the Column Chart for sentiment graph
     var graphChart = new CanvasJS.Chart("graphChart", {
       animationEnabled: true,
       theme: "light2",
