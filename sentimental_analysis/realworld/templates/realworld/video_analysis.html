@@ -1,0 +1,150 @@
+{% extends 'realworld/base.html' %}
+
+{% block title %}Video Analysis - Sentiment Analyzer Pro{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="text-center mb-4">
+    <h1 class="display-4">Video Analysis</h1>
+    <p class="lead">Upload a short MP4 file or provide a YouTube link for sentiment analysis.</p>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+      <form id="videoForm" action="{% url 'video_analysis' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Dropzone for MP4 Upload -->
+        <div id="dropzone" class="border border-primary rounded p-5 text-center mb-4" style="cursor: pointer;">
+          <p id="dropzoneText">Drag & drop your MP4 video here or click to upload.</p>
+          <input type="file" id="fileInput" name="video_bytes" accept="video/mp4" style="display: none;">
+        </div>
+
+        <!-- YouTube Link Input -->
+        <div class="mb-4">
+          <label for="youtubeLink" class="form-label">Or enter a YouTube link:</label>
+          <input type="url" class="form-control" id="youtubeLink" name="youtube_link" placeholder="https://www.youtube.com/watch?v=example">
+        </div>
+
+        <!-- Preview -->
+        <div id="previewArea" class="mb-4"></div>
+
+        <div class="d-grid">
+          <button type="submit" id="submitButton" class="btn btn-primary btn-lg">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  const dropzone = document.getElementById('dropzone');
+  const dropzoneText = document.getElementById('dropzoneText');
+  const fileInput = document.getElementById('fileInput');
+  const youtubeInput = document.getElementById('youtubeLink');
+  const previewArea = document.getElementById('previewArea');
+  const submitButton = document.getElementById('submitButton');
+
+  function clearPreview() {
+    previewArea.innerHTML = '';
+  }
+
+  function displayVideoPreview(file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      previewArea.innerHTML = `
+        <div class="card shadow-sm">
+          <div class="card-header bg-secondary text-white">Video Preview (MP4)</div>
+          <div class="card-body text-center">
+            <video controls width="100%" height="auto">
+              <source src="${e.target.result}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>`;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function displayYouTubePreview(link) {
+    const videoId = extractYouTubeID(link);
+    if (videoId) {
+      previewArea.innerHTML = `
+        <div class="card shadow-sm">
+          <div class="card-header bg-secondary text-white">YouTube Preview</div>
+          <div class="card-body text-center">
+            <iframe width="100%" height="360" src="https://www.youtube.com/embed/${videoId}" 
+              title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+          </div>
+        </div>`;
+    } else {
+      previewArea.innerHTML = `<p class="text-danger">Invalid YouTube URL.</p>`;
+    }
+  }
+
+  function extractYouTubeID(url) {
+    try {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    } catch {
+      return null;
+    }
+  }
+
+  // Drag & Drop
+  dropzone.addEventListener('click', () => fileInput.click());
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('bg-light');
+  });
+  dropzone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('bg-light');
+  });
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('bg-light');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File size exceeds 10MB. Please upload a smaller video.");
+        return;
+      }
+      fileInput.files = e.dataTransfer.files;
+      dropzoneText.textContent = file.name;
+      displayVideoPreview(file);
+    }
+  });
+
+  // File Input
+  fileInput.addEventListener('change', function () {
+    clearPreview();
+    const file = fileInput.files[0];
+    if (file && file.size <= 10 * 1024 * 1024) {
+      dropzoneText.textContent = file.name;
+      displayVideoPreview(file);
+    } else {
+      alert("File size exceeds 10MB. Please upload a smaller video.");
+      fileInput.value = "";
+      dropzoneText.textContent = "Drag & drop your MP4 video here or click to upload.";
+    }
+  });
+
+  // YouTube Input Preview
+  youtubeInput.addEventListener('input', function () {
+    clearPreview();
+    if (youtubeInput.value.trim() !== "") {
+      displayYouTubePreview(youtubeInput.value.trim());
+    }
+  });
+
+  // Submission Feedback
+  document.getElementById('videoForm').addEventListener('submit', function () {
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+  });
+</script>
+{% endblock %}

@@ -1,6 +1,7 @@
 from google import genai
 from realworld.models import SentimentScore
 from dotenv import load_dotenv
+from google.genai import types
 
 import assemblyai as aai
 import tempfile
@@ -11,7 +12,7 @@ import requests
 
 load_dotenv()
 
-def gemini_summarize(text, model="gemini-2.0-flash"):
+def gemini_summarize(text):
     """
     Calls the Gemini API to summarize the provided text.
     
@@ -33,7 +34,7 @@ def gemini_summarize(text, model="gemini-2.0-flash"):
     # Call the Gemini API using the client
     try:
         response = client.models.generate_content(
-            model=model,
+            model=os.getenv("GEMINI_MODEL_NAME"),
             contents=prompt,
             config={
                 'response_mime_type': 'text/plain',
@@ -50,7 +51,7 @@ def gemini_summarize(text, model="gemini-2.0-flash"):
     
     return result
 
-def gemini_sentiment_analysis(text, model="gemini-2.0-flash"):
+def gemini_sentiment_analysis(text):
     """
     Calls the Gemini API to perform sentiment analysis on the provided text.
     
@@ -74,7 +75,7 @@ def gemini_sentiment_analysis(text, model="gemini-2.0-flash"):
     # Call the Gemini API using the client
     try:
         response = client.models.generate_content(
-            model=model,
+            model=os.getenv("GEMINI_MODEL_NAME"),
             contents=prompt,
             config={
                 'response_mime_type': 'application/json',
@@ -135,3 +136,58 @@ def transcribe_audio(audio_data):
     os.remove(temp_file_path)
 
     return transcript_text
+
+def gemini_video_analysis(video_bytes, video_url):
+    """
+    Calls the Gemini API to analyze the provided video.
+    
+    Args:
+        video_data (bytes): The binary data of the video.
+        video_url (str): The URL of the video.
+        model (str): The Gemini model to use. Default is "gemini-2.0-flash".
+        
+    Returns:
+        str: The analysis result.
+    """
+    # Construct a prompt specifically designed for video analysis
+    prompt = "Can you summarize this video?"
+
+
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+    if video_url:
+        contents=types.Content(
+            parts=[
+                types.Part(text=prompt),
+                types.Part(
+                    file_data=types.FileData(file_uri=video_url)
+                )
+            ]
+        )
+    elif video_bytes:
+        contents = types.Content(
+            parts=[
+            types.Part(text=prompt),
+            types.Part(
+                inline_data=types.Blob(data=video_bytes.read(), mime_type='video/mp4')
+            )
+            ]
+        )
+    else:
+        raise ValueError("Either video_bytes or video_url must be provided.")
+    
+    # Call the Gemini API using the client
+    try:
+        response = client.models.generate_content(
+            model=os.getenv("GEMINI_MODEL_NAME"),
+            contents=contents,
+        )
+
+        result = response.text.strip()
+        
+    except Exception as e:
+        logging.error("Error during Gemini API call: %s", e)
+        # Optionally, define a fallback analysis result or raise an error
+        result = "Error generating video analysis."
+    
+    return result

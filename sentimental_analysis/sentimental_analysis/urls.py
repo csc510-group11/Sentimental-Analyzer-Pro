@@ -37,6 +37,13 @@ urlpatterns = [
     path('image-analysis/', realworld.views.image_analysis, name='image_analysis'),
     path('document-analysis/', realworld.views.document_analysis, name='document_analysis'),
     path('audio-analysis/', realworld.views.audio_analysis, name='audio_analysis'),
+    path('video-analysis/', realworld.views.video_analysis, name='video_analysis'),
+
+    # Seprate pages for each review feature: book, movie, product and restaurant
+    path('book-review/', realworld.views.book_review, name='book_review'),
+    path('movie-review/', realworld.views.movie_review, name='movie_review'),
+    path('product-review/', realworld.views.product_review, name='product_review'),
+    path('restaurant-review/', realworld.views.restaurant_review, name='restaurant_review')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

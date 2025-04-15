@@ -7,12 +7,13 @@
   <style>
     /* Custom Card Styling */
     .card {
-      background-color:rgb(230, 226, 226); /* White background for contrast */
+      background-color: rgb(230, 226, 226);
       border: none;
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
     }
     .card:hover {
       transform: translateY(-5px);
@@ -29,6 +30,25 @@
     .card .card-text {
       color: #555;
       font-size: 1rem;
+    }
+    /* Review sub-categories styling */
+    #reviewSubCategories .card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-bottom: 1rem;
+    }
+    #reviewSubCategories .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+    }
+    #reviewSubCategories .card-body {
+      padding: 1rem;
+    }
+    #reviewSubCategories .card-title {
+      font-size: 1rem;
+      margin-bottom: 0;
     }
   </style>
 {% endblock %}
@@ -86,8 +106,83 @@
           </div>
         </a>
       </div>
+      <!-- Review Analysis Card (Expandable) -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm animate__animated animate__fadeInUp" style="animation-delay: 0.9s;" data-bs-toggle="collapse" data-bs-target="#reviewSubCategories" aria-expanded="false">
+          <div class="card-body text-center">
+            <i class="fa fa-comment fa-3x text-primary mb-3"></i>
+            <h5 class="card-title">Review Analysis</h5>
+            <p class="card-text">Analyze reviews from multiple categories.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Video Analysis Card -->
+      <div class="col-md-4">
+        <a href="{% url 'video_analysis' %}" class="text-decoration-none text-reset">
+          <div class="card h-100 shadow-sm animate__animated animate__fadeInUp" style="animation-delay: 0.8s;">
+            <div class="card-body text-center">
+              <i class="fa-solid fa-image fa-3x text-primary mb-3"></i>
+              <h5 class="card-title">Video Analysis</h5>
+              <p class="card-text">Upload an video and extract descriptive sentiment and emotion insights.</p>
+            </div>
+          </div>
+        </a>
+      </div>
     </div>
   </section>
+
+  <!-- Collapsible Review Sub-Categories -->
+  <div class="collapse mt-4" id="reviewSubCategories">
+    <div class="container">
+      <div class="row g-4">
+        <!-- Product Reviews Sub-card -->
+        <div class="col-md-3">
+          <a href="{% url 'product_review' %}" class="text-decoration-none text-reset">
+            <div class="card shadow-sm">
+              <div class="card-body text-center">
+                <i class="fa fa-shopping-cart fa-2x text-primary mb-2"></i>
+                <h6 class="card-title">Product Reviews</h6>
+              </div>
+            </div>
+          </a>
+        </div>
+        <!-- Movie Reviews Sub-card -->
+        <div class="col-md-3">
+          <a href="{% url 'movie_review' %}" class="text-decoration-none text-reset">
+            <div class="card shadow-sm">
+              <div class="card-body text-center">
+                <i class="fa fa-film fa-2x text-primary mb-2"></i>
+                <h6 class="card-title">Movie Reviews</h6>
+              </div>
+            </div>
+          </a>
+        </div>
+        <!-- Restaurant Reviews Sub-card -->
+        <div class="col-md-3">
+          <a href="{% url 'restaurant_review' %}" class="text-decoration-none text-reset">
+            <div class="card shadow-sm">
+              <div class="card-body text-center">
+                <i class="fa fa-cutlery fa-2x text-primary mb-2"></i>
+                <h6 class="card-title">Restaurant Reviews</h6>
+              </div>
+            </div>
+          </a>
+        </div>
+        <!-- Book Reviews Sub-card -->
+        <div class="col-md-3">
+          <a href="{% url 'book_review' %}" class="text-decoration-none text-reset">
+            <div class="card shadow-sm">
+              <div class="card-body text-center">
+                <i class="fa fa-book fa-2x text-primary mb-2"></i>
+                <h6 class="card-title">Book Reviews</h6>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </main>
 {% endblock %}
 
