@@ -33,17 +33,10 @@ urlpatterns = [
     path('', realworld.views.index, name='index'),
     
     # Separate pages for each analysis feature
-    path('news-analysis/', realworld.views.newsanalysis, name='news_analysis'),
-    path('text-analysis/', realworld.views.textanalysis, name='text_analysis'),
+    path('text-analysis/', realworld.views.text_analysis, name='text_analysis'),
     path('image-analysis/', realworld.views.image_analysis, name='image_analysis'),
     path('document-analysis/', realworld.views.document_analysis, name='document_analysis'),
     path('audio-analysis/', realworld.views.audio_analysis, name='audio_analysis'),
-    
-    # Social media analysis can be grouped in one page or broken down further:
-    path('social-media-analysis/', realworld.views.social_media_analysis, name='social_media_analysis'),
-    path('facebook-analysis/', realworld.views.fbanalysis, name='fb_analysis'),
-    path('twitter-analysis/', realworld.views.twitteranalysis, name='twitter_analysis'),
-    path('reddit-analysis/', realworld.views.redditanalysis, name='reddit_analysis'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
