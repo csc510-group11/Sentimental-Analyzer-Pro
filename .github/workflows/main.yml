@@ -25,11 +25,9 @@ jobs:
         pip install pytest
         pip install numpy
         pip install -r requirements.txt
-        python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('vader_lexicon')"
     - name: Lint with pylint
       run: |
         pip install pylint
-        pylint --fail-under=0 Amazon_Comments_Scrapper
         pylint --fail-under=0 sentimental_analysis
     - name: Formatting with autopep
       run: |
@@ -37,4 +35,4 @@ jobs:
           autopep8 $(git ls-files '**.py*') --in-place --list-fixes -j 2
     - name: Test with pytest
       run: |
-        pytest
+        (cd sentiment_analysis && pytest)
