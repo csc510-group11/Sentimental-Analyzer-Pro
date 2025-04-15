@@ -3,8 +3,6 @@ import json
 from google import genai
 from django.shortcuts import render
 from django.http import HttpResponse
-from realworld.scrapers.newsScraper import *
-from realworld.scrapers.reddit_scrap import *
 from realworld.models import SentimentScore
 from django.contrib.auth.decorators import login_required
 import PyPDF2
