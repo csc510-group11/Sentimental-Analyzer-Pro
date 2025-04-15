@@ -28,7 +28,7 @@ jobs:
     - name: Lint with pylint
       run: |
         pip install pylint
-        pylint --fail-under=0 sentimental_analysis
+        pylint --fail-under=0 sentimental_analysis/**.py
     - name: Formatting with autopep
       run: |
           pip install autopep8
