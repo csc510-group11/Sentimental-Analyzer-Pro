@@ -17,13 +17,9 @@ load_dotenv()
 
 @login_required
 def index(request):
-    note = "Welcome to the Sentiment Analysis App! Please select an analysis option from the menu."
-    return render(request, 'realworld/index.html', {'note': note})
+    return render(request, 'realworld/index.html')
 
-def social_media_analysis(request):
-    note = "This is a Social Media Analysis App that uses various models to analyze the sentiment of text, audio, and social media data."
-    return render(request, 'realworld/index.html', {'note': note})
-
+@login_required
 def document_analysis(request):
     if request.method == 'POST':
         document_text = None  # This will hold the text from the document
@@ -31,9 +27,10 @@ def document_analysis(request):
         # Check if a file was uploaded using the field named 'document'
         uploaded_file = request.FILES.get('document')
         if uploaded_file:
-            # Enforce 5KB file size limit (5KB = 5120 bytes)
-            if uploaded_file.size > 5120:
-                return HttpResponse("File size exceeds 5KB limit.", status=400)
+            # Enforce 5MB file size limit (5MB = 5 * 1024 * 1024 = 5242880 bytes)
+            if uploaded_file.size > 5242880:
+                return HttpResponse("File size exceeds 5MB limit.", status=400)
+
 
             # Determine the file type based on the file extension
             file_ext = uploaded_file.name.split('.')[-1].lower()
@@ -60,7 +57,7 @@ def document_analysis(request):
         if document_text:
             result = gemini_sentiment_analysis(document_text)
 
-            return render(request, 'realworld/results.html', {'sentiment': result, 'text' : document_text, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False,})
+            return render(request, 'realworld/results.html', {'sentiment': result, 'text' : document_text})
         else:
             return HttpResponse("No document content found.", status=400)
     
@@ -112,7 +109,8 @@ def gemini_sentiment_analysis(text, model="gemini-2.0-flash"):
     
     return result
 
-def textanalysis(request):
+@login_required
+def text_analysis(request):
     """Performs sentiment analysis for the single line text"""
     if request.method == 'POST':
         text_data = request.POST.get("text", "")
@@ -121,8 +119,7 @@ def textanalysis(request):
 
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : text_data, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False,})
     else:
-        note = "Enter the Text to be analysed!"
-        return render(request, 'realworld/textanalysis.html', {'note': note})
+        return render(request, 'realworld/text_analysis.html')
 
 def generate_emotion_caption(encoded_image):
     # Optional: Customize prompt to ask for emotions
@@ -142,6 +139,7 @@ def generate_emotion_caption(encoded_image):
     caption = results[0].get("generated_text", "")
     return caption
 
+@login_required
 def image_analysis(request):
     if request.method == "POST":
         # Retrieve the uploaded image from the request
@@ -166,7 +164,7 @@ def image_analysis(request):
         
         result = gemini_sentiment_analysis(caption)
         
-        return render(request, 'realworld/resultsimage.html', {
+        return render(request, 'realworld/results.html', {
             'caption': caption,
             'sentiment': result,
             'encoded_image': "data:image/jpeg;base64," + encoded_image
@@ -175,53 +173,6 @@ def image_analysis(request):
     # For GET requests, simply render the image analysis upload form.
     else:
         return render(request, 'realworld/image_analysis.html')
-
-def scrap_social_media(url):
-    return """
-        I am so sad today! :(
-        I don't know what to do. I feel like crying. :(
-        I just want to be happy again. :(
-        I miss my friends. :(
-        I miss my family. :(
-        I miss my life. :(
-    """
-
-def fbanalysis(request):
-    if request.method == 'POST':
-        rquest_url = request.POST.get("blogname", "")
-
-        scrapped_data = scrap_social_media(rquest_url)
-
-        logging.info("scrapped_data: %s", scrapped_data)  # Debugging
-
-        result = gemini_sentiment_analysis(scrapped_data)
-
-
-        # logging.info("Sentiment Scores: %s", str(sentiment_scores))  # Debugging
-        logging.info("result: %s", result)  # Debugging
-
-
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text': scrapped_data.split("\n"), 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
-
-def twitteranalysis(request):
-    if request.method == 'POST':
-        rquest_url = request.POST.get("blogname", "")
-
-        scrapped_data = scrap_social_media(rquest_url)
-
-        result = gemini_sentiment_analysis(scrapped_data)
-
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : scrapped_data.split("\n"), 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
-
-def redditanalysis(request):
-    if request.method == 'POST':
-        rquest_url = request.POST.get("blogname", "")
-
-        scrapped_data = scrap_social_media(rquest_url)
-
-        result = gemini_sentiment_analysis(scrapped_data)
-
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : scrapped_data.split("\n"), 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
 
 def transcribe_audio(audio_data):
     # Set your AssemblyAI API key.
@@ -247,18 +198,11 @@ def transcribe_audio(audio_data):
 
     return transcript_text
 
+@login_required
 def audio_analysis(request):
     if request.method == 'POST':
         transcribed_text = transcribe_audio(request.FILES.get('audio').read())
         result = gemini_sentiment_analysis(transcribed_text)
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : transcribed_text, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False})
+        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : transcribed_text})
     else:
-        note = "Please Enter the Audio file you want to analyze"
-        return render(request, 'realworld/audio_analysis.html', {'note': note})
-
-def newsanalysis(request):
-    if request.method == 'POST':
-        pass
-    else:
-        return render(request, 'realworld/index.html')
-    
+        return render(request, 'realworld/audio_analysis.html')  
