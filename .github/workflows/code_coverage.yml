@@ -20,7 +20,7 @@ jobs:
         SCRAPEOPS_API_SECRET: ${{ secrets.SCRAPEOPS_API_SECRET }}
       run: |
           pip install -r requirements.txt
-          (cd sentimental_analysis && pytest --ds=sentimental_analysis.settings --cov=./ --cov-config=test/.coveragerc --cov-report=xml)
+          (cd sentimental_analysis && pytest --ds=sentimental_analysis.settings --cov=./ --cov-config=../test/.coveragerc --cov-report=xml)
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v4
