@@ -6,7 +6,7 @@
 <div class="container my-5">
   <div class="text-center mb-4">
     <h1 class="display-4">Document Analysis</h1>
-    <p class="lead">Drag and drop or upload a document (TXT or PDF, max 5KB).</p>
+    <p class="lead">Drag and drop or upload a document (TXT or PDF, max 5MB).</p>
   </div>
   <div class="row justify-content-center">
     <div class="col-md-8">
@@ -71,14 +71,13 @@
     }
   });
 
-  // Validate file size and update the dropzone text upon file selection,
-  // and display the preview.
+  // Validate file size and update preview on file selection
   fileInput.addEventListener('change', function() {
     clearPreview();
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
-      if (file.size > 5120) { // 5KB = 5120 bytes
-        alert('File size exceeds 5KB. Please upload a smaller file.');
+      if (file.size > 5242880) { // 5MB = 5 * 1024 * 1024 = 5242880 bytes
+        alert('File size exceeds 5MB. Please upload a smaller file.');
         fileInput.value = "";
         dropzoneText.textContent = "Drag & drop your document here or click to upload.";
         clearPreview();
@@ -94,9 +93,7 @@
     clearPreview();
     const fileExtension = file.name.split('.').pop().toLowerCase();
     const reader = new FileReader();
-
     if (fileExtension === 'txt' || file.type.indexOf("text") !== -1) {
-      // For plain text files, read as text and display in a <pre> block.
       reader.onload = function(e) {
         previewArea.innerHTML = `<div class="card shadow-sm">
           <div class="card-header bg-secondary text-white">Document Preview (Text)</div>
@@ -105,7 +102,6 @@
       };
       reader.readAsText(file);
     } else if (fileExtension === 'pdf' || file.type.indexOf("pdf") !== -1) {
-      // For PDF files, read as data URL and embed in an iframe.
       reader.onload = function(e) {
         previewArea.innerHTML = `<div class="card shadow-sm">
           <div class="card-header bg-secondary text-white">Document Preview (PDF)</div>

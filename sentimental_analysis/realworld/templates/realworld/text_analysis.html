@@ -15,7 +15,6 @@
       <form id="textAnalysisForm" action="{% url 'text_analysis' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="mb-3">
-          <label for="text" class="form-label">Enter your text for analysis:</label>
           <textarea name="text" id="text" class="form-control form-control-lg" rows="10" placeholder="Enter your text here..."></textarea>
           <div id="textHelp" class="form-text">
             You can paste or type text. Maximum 5000 characters.

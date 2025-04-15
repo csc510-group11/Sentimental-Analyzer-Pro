@@ -1,13 +1,8 @@
 Django
 PyPDF2
 requests
-Scrapy
 pytest
-newspaper3k
-praw
 google-genai
 pytest-django
-newspaper3k
-lxml_html_clean
 dotenv
 assemblyai
