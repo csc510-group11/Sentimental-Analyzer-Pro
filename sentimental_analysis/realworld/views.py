@@ -51,8 +51,11 @@ def document_analysis(request):
             return HttpResponse("No file uploaded.", status=400)
 
         if document_text:
-            summary = gemini_summarize(document_text)
-            result = gemini_sentiment_analysis(document_text)
+            try:
+                summary = gemini_summarize(document_text)
+                result = gemini_sentiment_analysis(document_text)
+            except Exception as e:
+                return HttpResponse("Error during analysis: " + str(e), status=500)
 
             return render(request, 'realworld/results.html', {'sentiment': result, 'summary' : summary})
         else:
