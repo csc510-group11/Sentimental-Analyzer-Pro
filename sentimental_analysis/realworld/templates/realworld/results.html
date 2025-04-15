@@ -25,7 +25,21 @@
   </div>
   {% endif %}
   
-  {% if text %}
+  {% if summary %}
+  <!-- Document Summary Section -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-primary text-white">
+          <strong>Document Summary</strong>
+        </div>
+        <div class="card-body">
+          <textarea class="form-control" rows="5" readonly>{{ summary }}</textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% elif text %}
   <!-- Analyzed Text Section -->
   <div class="row mb-5">
     <div class="col-12">

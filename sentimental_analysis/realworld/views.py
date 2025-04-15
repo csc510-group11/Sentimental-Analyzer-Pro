@@ -1,14 +1,10 @@
-import os
-import json
-from google import genai
 from django.shortcuts import render
 from django.http import HttpResponse
-from realworld.models import SentimentScore
 from django.contrib.auth.decorators import login_required
+from realworld.utils import gemini_sentiment_analysis, generate_emotion_caption, transcribe_audio, gemini_summarize
 import PyPDF2
 import base64
-import assemblyai as aai
-import tempfile
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -53,59 +49,16 @@ def document_analysis(request):
             return HttpResponse("No file uploaded.", status=400)
 
         if document_text:
+            summary = gemini_summarize(document_text)
             result = gemini_sentiment_analysis(document_text)
 
-            return render(request, 'realworld/results.html', {'sentiment': result, 'text' : document_text})
+            return render(request, 'realworld/results.html', {'sentiment': result, 'summary' : summary})
         else:
             return HttpResponse("No document content found.", status=400)
     
     else:
         # For GET requests, simply render the document analysis template
         return render(request, 'realworld/document_analysis.html')
-
-def gemini_sentiment_analysis(text, model="gemini-2.0-flash"):
-    """
-    Calls the Gemini API to perform sentiment analysis on the provided text.
-    
-    Args:
-        text (str): The input text for sentiment analysis.
-        model (str): The Gemini model to use. Default is "gemini-2.0-flash".
-        
-    Returns:
-        dict: A dictionary containing sentiment analysis results, e.g. {'pos': 0.7, 'neu': 0.2, 'neg': 0.1}
-    """
-    # Construct a prompt specifically designed to extract sentiment analysis scores
-    # Customize the prompt as needed based on how Gemini expects instructions.
-    prompt = (
-        "Perform sentiment analysis on the following text. "
-        "Return a JSON object with keys 'pos', 'neu', and 'neg' representing the positive, neutral, and negative sentiment scores respectively:\n\n"
-        f"{text}"
-    )
-
-    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-    
-    # Call the Gemini API using the client
-    try:
-        response = client.models.generate_content(
-            model=model,
-            contents=prompt,
-            config={
-                'response_mime_type': 'application/json',
-                'response_schema': SentimentScore,
-            },
-        )
-        # Log the raw response for debugging
-        logging.info("Gemini raw response: %s", response.text)
-        
-        # Assume the response.text is a JSON formatted string
-        result = json.loads(response.text)
-        
-    except Exception as e:
-        logging.error("Error during Gemini API call: %s", e)
-        # Optionally, define a fallback sentiment result or raise an error
-        result = {"pos": 0.0, "neu": 0.0, "neg": 0.0}
-    
-    return result
 
 @login_required
 def text_analysis(request):
@@ -118,24 +71,6 @@ def text_analysis(request):
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : text_data, 'reviewsRatio': {}, 'totalReviews': 1, 'showReviewsRatio': False,})
     else:
         return render(request, 'realworld/text_analysis.html')
-
-def generate_emotion_caption(encoded_image):
-    # Optional: Customize prompt to ask for emotions
-    prompt_instruction = "Describe the scene in the image and include details about any emotions shown."
-
-    headers = {"Authorization": f"Bearer {os.getenv('HF_API_TOKEN')}"}
-    api_url = os.getenv("HF_IMAGE_CAPTION_API_URL")
-    payload = {
-        "inputs": encoded_image,
-        "options": {"prompt": prompt_instruction}
-    }
-
-    response = requests.post(api_url, headers=headers, json=payload)
-    results = response.json()
-
-    # Depending on the API response, you might need to adjust how you extract the caption.
-    caption = results[0].get("generated_text", "")
-    return caption
 
 @login_required
 def image_analysis(request):
@@ -171,30 +106,6 @@ def image_analysis(request):
     # For GET requests, simply render the image analysis upload form.
     else:
         return render(request, 'realworld/image_analysis.html')
-
-def transcribe_audio(audio_data):
-    # Set your AssemblyAI API key.
-    aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
-    transcriber = aai.Transcriber()
-
-    # Write binary audio data to a temporary file (with .wav extension).
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
-        temp_file.write(audio_data)
-        temp_file_path = temp_file.name
-
-    try:
-        # Transcribe the audio using the temporary file path.
-        transcript = transcriber.transcribe(temp_file_path)
-        transcript_text = transcript.text
-    except Exception as e:
-        # Ensure cleanup in case of an error.
-        os.remove(temp_file_path)
-        raise e
-
-    # Clean up the temporary file.
-    os.remove(temp_file_path)
-
-    return transcript_text
 
 @login_required
 def audio_analysis(request):
