@@ -6,3 +6,7 @@ google-genai
 pytest-django
 dotenv
 assemblyai
+requests
+beautifulsoup4
+selenium
+webdriver_manager
