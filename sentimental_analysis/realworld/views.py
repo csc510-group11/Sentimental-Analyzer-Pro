@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from realworld.utils import *
+from .utils import *
+from .decorators import cache_response
 import PyPDF2
 import base64
 
@@ -14,6 +15,7 @@ def index(request):
     return render(request, 'realworld/index.html')
 
 @login_required
+@cache_response
 def document_analysis(request):
     if request.method == 'POST':
         document_text = None  # This will hold the text from the document
@@ -61,6 +63,7 @@ def document_analysis(request):
         return render(request, 'realworld/document_analysis.html')
 
 @login_required
+@cache_response
 def text_analysis(request):
     """Performs sentiment analysis for the single line text"""
     if request.method == 'POST':
@@ -73,6 +76,7 @@ def text_analysis(request):
         return render(request, 'realworld/text_analysis.html')
 
 @login_required
+@cache_response
 def image_analysis(request):
     if request.method == "POST":
         # Retrieve the uploaded image from the request
@@ -108,6 +112,7 @@ def image_analysis(request):
         return render(request, 'realworld/image_analysis.html')
 
 @login_required
+@cache_response
 def audio_analysis(request):
     if request.method == 'POST':
         transcribed_text = transcribe_audio(request.FILES.get('audio').read())
@@ -117,6 +122,7 @@ def audio_analysis(request):
         return render(request, 'realworld/audio_analysis.html')  
     
 @login_required
+@cache_response
 def video_analysis(request):
     if request.method == 'POST':
         video_url = None
@@ -134,8 +140,8 @@ def video_analysis(request):
     else:
         return render(request, 'realworld/video_analysis.html')
 
-    
 @login_required
+@cache_response
 def book_review(request):
     if request.method == 'POST':
         book_url = request.POST.get("book_url", "")
@@ -151,6 +157,7 @@ def book_review(request):
         return render(request, 'realworld/book_review.html')
     
 @login_required
+@cache_response
 def movie_review(request):
     if request.method == 'POST':
         movie_url = request.POST.get("movie_url", "")
@@ -166,6 +173,7 @@ def movie_review(request):
         return render(request, 'realworld/movie_review.html')
     
 @login_required
+@cache_response
 def product_review(request):
     if request.method == 'POST':
         product_url = request.POST.get("product_url", "")
@@ -181,6 +189,7 @@ def product_review(request):
         return render(request, 'realworld/product_review.html')
     
 @login_required
+@cache_response
 def restaurant_review(request):
     if request.method == 'POST':
         restaurant_url = request.POST.get("restaurant_url", "")

@@ -1,5 +1,5 @@
 from google import genai
-from realworld.models import SentimentScore
+from .schemas import SentimentScore
 from dotenv import load_dotenv
 from google.genai import types
 
@@ -9,6 +9,8 @@ import os
 import json
 import logging
 import requests
+import hashlib
+
 
 load_dotenv()
 
@@ -191,3 +193,14 @@ def gemini_video_analysis(video_bytes, video_url):
         result = "Error generating video analysis."
     
     return result
+
+def get_request_hash(request):
+    # Build a consistent representation of the request.
+    data = {
+        'method': request.method,
+        'path': request.path,
+        'GET': request.GET.dict(),
+        'POST': request.POST.dict(),
+    }
+    data_str = json.dumps(data, sort_keys=True)
+    return hashlib.sha256(data_str.encode('utf-8')).hexdigest()
