@@ -7,8 +7,6 @@ from .decorators import cache_response
 import PyPDF2
 import base64
 from dotenv import load_dotenv
-# import all from scraper.py from sentimental_analysis/Scraper
-from .Scraper.scraper import scrape_data
 
 load_dotenv()
 
