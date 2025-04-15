@@ -60,5 +60,6 @@ env/
 #macOS
 .DS_Store
 
-venv
+.venv
 *output.txt
+venv
