@@ -1,0 +1,47 @@
+{% extends 'realworld/base.html' %}
+
+{% block title %}Text Analysis - Sentiment Analyzer Pro{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="text-center mb-4">
+    <h1 class="display-4">restaurant-review Analysis</h1>
+    {% if note %}
+      <p class="lead">{{ note }}</p>
+    {% endif %}
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form id="textAnalysisForm" action="{% url 'restaurant_review' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+          <input type="url" name="restaurant_url" id="restaurant_url" class="form-control form-control-lg" placeholder="Enter the restaurant review URL here..." required>
+          <div id="urlHelp" class="form-text">
+              Please provide a valid URL (e.g., https://example.com).
+          </div>
+      </div>
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary btn-lg" id="submitButton">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// When the form is submitted, disable the button and display a spinner.
+document.getElementById("textAnalysisForm").addEventListener("submit", function() {
+  var submitButton = document.getElementById("submitButton");
+  submitButton.disabled = true;
+  submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+});
+
+// Live character count for the textarea.
+document.getElementById("text").addEventListener("input", function(){
+  var count = this.value.length;
+  document.getElementById("charCount").textContent = count + "/5000 characters";
+});
+</script>
+{% endblock %}

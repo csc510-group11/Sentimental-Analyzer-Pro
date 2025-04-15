@@ -5,8 +5,9 @@ from .utils import *
 from .decorators import cache_response
 import PyPDF2
 import base64
-
 from dotenv import load_dotenv
+# import all from scraper.py from sentimental_analysis/Scraper
+from .Scraper.scraper import scrape_data
 
 load_dotenv()
 
@@ -146,7 +147,7 @@ def book_review(request):
     if request.method == 'POST':
         book_url = request.POST.get("book_url", "")
 
-        book_review_text = scrape_reviews(book_url, category="book")
+        book_review_text = scrape_data(book_url, category="book")
         if not book_review_text:
             return HttpResponse("No reviews found.", status=400)
         
@@ -162,7 +163,7 @@ def movie_review(request):
     if request.method == 'POST':
         movie_url = request.POST.get("movie_url", "")
 
-        movie_review_text = scrape_reviews(movie_url, category="movie")
+        movie_review_text = scrape_data(movie_url, category="movie")
         if not movie_review_text:
             return HttpResponse("No reviews found.", status=400)
         
@@ -178,7 +179,7 @@ def product_review(request):
     if request.method == 'POST':
         product_url = request.POST.get("product_url", "")
 
-        product_review_text = scrape_reviews(product_url, category="product")
+        product_review_text = scrape_data(product_url, category="product")
         if not product_review_text:
             return HttpResponse("No reviews found.", status=400)
         
@@ -194,7 +195,11 @@ def restaurant_review(request):
     if request.method == 'POST':
         restaurant_url = request.POST.get("restaurant_url", "")
 
-        restaurant_review_text = scrape_reviews(restaurant_url, category="restaurant")
+        if not restaurant_url:
+            return HttpResponse("No URL provided. Please enter a valid URL.", status=400)
+        
+
+        restaurant_review_text = scrape_data(restaurant_url, category="restaurant")
         if not restaurant_review_text:
             return HttpResponse("No reviews found.", status=400)
         
