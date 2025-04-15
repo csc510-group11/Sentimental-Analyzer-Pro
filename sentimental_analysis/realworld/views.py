@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from .scrapers.scraper import scrape_reviews
 from .utils import *
 from .decorators import cache_response
 import PyPDF2
@@ -148,7 +149,7 @@ def video_analysis(request):
 @cache_response
 def book_review(request):
     if request.method == 'POST':
-        book_url = request.POST.get("book_url", "")
+        book_url = request.POST.get("review_url", "")
 
         book_review_text = scrape_data(book_url, category="book")
         if not book_review_text:
@@ -164,7 +165,7 @@ def book_review(request):
 @cache_response
 def movie_review(request):
     if request.method == 'POST':
-        movie_url = request.POST.get("movie_url", "")
+        movie_url = request.POST.get("review_url", "")
 
         movie_review_text = scrape_data(movie_url, category="movie")
         if not movie_review_text:
@@ -180,7 +181,7 @@ def movie_review(request):
 @cache_response
 def product_review(request):
     if request.method == 'POST':
-        product_url = request.POST.get("product_url", "")
+        product_url = request.POST.get("review_url", "")
 
         product_review_text = scrape_data(product_url, category="product")
         if not product_review_text:
@@ -196,13 +197,10 @@ def product_review(request):
 @cache_response
 def restaurant_review(request):
     if request.method == 'POST':
-        restaurant_url = request.POST.get("restaurant_url", "")
+        restaurant_url = request.POST.get("review_url", "")
 
-        if not restaurant_url:
-            return HttpResponse("No URL provided. Please enter a valid URL.", status=400)
-        
-
-        restaurant_review_text = scrape_data(restaurant_url, category="restaurant")
+        restaurant_review_text = scrape_reviews(restaurant_url, category="restaurant")
+        logging.info(f"Restaurant review text: {restaurant_review_text}")
         if not restaurant_review_text:
             return HttpResponse("No reviews found.", status=400)
         
