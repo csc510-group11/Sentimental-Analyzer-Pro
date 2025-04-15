@@ -20,7 +20,6 @@ jobs:
         SCRAPEOPS_API_SECRET: ${{ secrets.SCRAPEOPS_API_SECRET }}
       run: |
           pip install -r requirements.txt
-          python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('vader_lexicon')"
           pytest --cov=./ --cov-config=test/.coveragerc --cov-report=xml
 
     - name: Upload coverage reports to Codecov
