@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import json
 
 def scrape_goodreads_reviews(book_url):
     headers = {
@@ -36,7 +37,13 @@ def scrape_goodreads_reviews(book_url):
             reviews.append({"review": review_text, "rating": rating_text})
             i += 1
 
-    return book_title,description,reactions,reviews
+    response_dict = {
+        "title": book_title,
+        "description": description,
+        "reactions": reactions,
+        "reviews": reviews
+    }
+    return json.dumps(response_dict, indent=4)
 
 # if __name__ == "__main__":
 #     book_url = "https://www.goodreads.com/book/show/2767052-the-hunger-games"

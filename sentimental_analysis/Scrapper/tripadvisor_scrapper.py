@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import json
 
 def scrape_tripadvisor(url):
     headers = {
@@ -32,12 +33,19 @@ def scrape_tripadvisor(url):
         whole_review = review_title+'\n'+review_text
         reviews.append({"review": whole_review, "rating": bubble})
 
-    return title, description, reactions, reviews
+    response_dict = {
+        "title": title,
+        "description": description,
+        "reactions": reactions,
+        "reviews": reviews
+    }
+
+    return json.dumps(response_dict, indent=4)
 
 # Example usage
-title, description, reactions, reviews = scrape_tripadvisor("https://www.tripadvisor.com/Restaurant_Review-g34227-d3192530-Reviews-15th_Street_Fisheries-Fort_Lauderdale_Broward_County_Florida.html")
-print(f"Title: {title}")
-print(f"Description: {description}")
-print(f"Reactions: {reactions}")
-print(f"Reviews: {reviews}")
+# title, description, reactions, reviews = scrape_tripadvisor("https://www.tripadvisor.com/Restaurant_Review-g34227-d3192530-Reviews-15th_Street_Fisheries-Fort_Lauderdale_Broward_County_Florida.html")
+# print(f"Title: {title}")
+# print(f"Description: {description}")
+# print(f"Reactions: {reactions}")
+# print(f"Reviews: {reviews}")
 
