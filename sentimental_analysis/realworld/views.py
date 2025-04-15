@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from realworld.utils import gemini_sentiment_analysis, generate_emotion_caption, transcribe_audio, gemini_summarize
+from realworld.utils import *
 import PyPDF2
 import base64
 
@@ -115,3 +115,83 @@ def audio_analysis(request):
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : transcribed_text})
     else:
         return render(request, 'realworld/audio_analysis.html')  
+    
+@login_required
+def video_analysis(request):
+    if request.method == 'POST':
+        video_url = None
+        video_bytes = request.FILES.get('video_bytes')
+        if not video_bytes:
+            video_url = request.POST.get("youtube_link", "")
+            if not video_url:
+                return HttpResponse("No video file or URL provided.", status=400)
+
+        video_summary = gemini_video_analysis(video_bytes, video_url)
+        if not video_summary:
+            return HttpResponse("No summary found.", status=400)
+        result = gemini_sentiment_analysis(video_summary)
+        return render(request, 'realworld/results.html', {'sentiment': result, 'summary' : video_summary})
+    else:
+        return render(request, 'realworld/video_analysis.html')
+
+    
+@login_required
+def book_review(request):
+    if request.method == 'POST':
+        book_url = request.POST.get("book_url", "")
+
+        book_review_text = scrape_reviews(book_url, category="book")
+        if not book_review_text:
+            return HttpResponse("No reviews found.", status=400)
+        
+        review_summary = gemini_summarize(book_review_text)
+        result = gemini_sentiment_analysis(book_review_text)
+        return render(request, 'realworld/results.html', {'sentiment': result, 'summary' : review_summary})
+    else:
+        return render(request, 'realworld/book_review.html')
+    
+@login_required
+def movie_review(request):
+    if request.method == 'POST':
+        movie_url = request.POST.get("movie_url", "")
+
+        movie_review_text = scrape_reviews(movie_url, category="movie")
+        if not movie_review_text:
+            return HttpResponse("No reviews found.", status=400)
+        
+        review_summary = gemini_summarize(movie_review_text)
+        result = gemini_sentiment_analysis(movie_review_text)
+        return render(request, 'realworld/results.html', {'sentiment': result, 'summary' : review_summary})
+    else:
+        return render(request, 'realworld/movie_review.html')
+    
+@login_required
+def product_review(request):
+    if request.method == 'POST':
+        product_url = request.POST.get("product_url", "")
+
+        product_review_text = scrape_reviews(product_url, category="product")
+        if not product_review_text:
+            return HttpResponse("No reviews found.", status=400)
+        
+        review_summary = gemini_summarize(product_review_text)
+        result = gemini_sentiment_analysis(product_review_text)
+        return render(request, 'realworld/results.html', {'sentiment': result, 'summary' : review_summary})
+    else:
+        return render(request, 'realworld/product_review.html')
+    
+@login_required
+def restaurant_review(request):
+    if request.method == 'POST':
+        restaurant_url = request.POST.get("restaurant_url", "")
+
+        restaurant_review_text = scrape_reviews(restaurant_url, category="restaurant")
+        if not restaurant_review_text:
+            return HttpResponse("No reviews found.", status=400)
+        
+        review_summary = gemini_summarize(restaurant_review_text)
+        result = gemini_sentiment_analysis(restaurant_review_text)
+        return render(request, 'realworld/results.html', {'sentiment': result, 'summary' : review_summary})
+    else:
+        return render(request, 'realworld/restaurant_review.html')
+    
