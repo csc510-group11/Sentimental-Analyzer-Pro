@@ -4,8 +4,8 @@ import hashlib
 from .utils import (
     gemini_summarize,
     gemini_sentiment_analysis,
-    generate_emotion_caption,
-    transcribe_audio,
+    gemini_caption_image,
+    gemini_transcribe_audio,
     gemini_video_analysis,
     get_request_hash,
 )
@@ -42,7 +42,7 @@ class TestFunctions(unittest.TestCase):
         mock_response.json.return_value = [{"generated_text": "A happy family in a park."}]
         mock_post.return_value = mock_response
 
-        result = generate_emotion_caption("encoded_image_data")
+        result = gemini_caption_image("encoded_image_data")
 
         self.assertEqual(result, "A happy family in a park.")
         mock_post.assert_called_once()
@@ -55,7 +55,7 @@ class TestFunctions(unittest.TestCase):
 
         audio_data = b"fake_audio_data"
 
-        result = transcribe_audio(audio_data)
+        result = gemini_transcribe_audio(audio_data)
 
         self.assertEqual(result, "This is a transcription.")
         mock_transcriber.assert_called_once()

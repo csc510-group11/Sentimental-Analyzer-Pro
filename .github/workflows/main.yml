@@ -23,12 +23,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pytest
-        pip install numpy
         pip install -r requirements.txt
     - name: Lint with pylint
       run: |
         pip install pylint
-        pylint --fail-under=0 sentimental_analysis/**.py
+        pylint --fsentimental_analysisail-under=0 /**.py
     - name: Formatting with autopep
       run: |
           pip install autopep8
