@@ -36,7 +36,7 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(result, {"pos": 0.7, "neu": 0.2, "neg": 0.1})
         mock_client.assert_called_once()
 
-    @patch("realworld.utils.requests.post")
+    @patch("realworld.utils.genai.Client")
     def test_generate_emotion_caption(self, mock_post):
         mock_response = MagicMock()
         mock_response.json.return_value = [{"generated_text": "A happy family in a park."}]
@@ -47,7 +47,7 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(result, "A happy family in a park.")
         mock_post.assert_called_once()
 
-    @patch("realworld.utils.aai.Transcriber")
+    @patch("realworld.utils.genai.Client")
     def test_transcribe_audio(self, mock_transcriber):
         mock_transcription = MagicMock()
         mock_transcription.text = "This is a transcription."
@@ -87,12 +87,13 @@ class TestFunctions(unittest.TestCase):
         mock_client.assert_called_once()
 
     def test_get_request_hash(self):
-
         mock_request = MagicMock()
         mock_request.method = "POST"
         mock_request.path = "/api/test"
         mock_request.GET.dict.return_value = {"key1": "value1"}
         mock_request.POST.dict.return_value = {"key2": "value2"}
+        # Make sure no files are uploaded:
+        mock_request.FILES = {}
 
         result = get_request_hash(mock_request)
 
@@ -105,7 +106,6 @@ class TestFunctions(unittest.TestCase):
         expected_hash = hashlib.sha256(json.dumps(expected_data, sort_keys=True).encode("utf-8")).hexdigest()
 
         self.assertEqual(result, expected_hash)
-
 
 if __name__ == "__main__":
     unittest.main()
