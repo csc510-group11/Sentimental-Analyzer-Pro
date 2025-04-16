@@ -104,11 +104,3 @@ def scrape_imdb(url):
     # print("completed", len(reviews))
     
     return json.dumps(response_dict,indent=4)
-
-
-
-movie_url = 'https://www.imdb.com/title/tt15777864'
-review_dict = scrape_imdb(movie_url)
-print(review_dict)
-
-

@@ -15,26 +15,24 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.10.15
+    - name: Set up Python 3.13
       uses: actions/setup-python@v2
       with:
-        python-version: 3.10.15
+        python-version: 3.x
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pytest
         pip install numpy
         pip install -r requirements.txt
-        python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('vader_lexicon')"
     - name: Lint with pylint
       run: |
         pip install pylint
-        pylint --fail-under=0 Amazon_Comments_Scrapper
-        pylint --fail-under=0 sentimental_analysis
+        pylint --fail-under=0 sentimental_analysis/**.py
     - name: Formatting with autopep
       run: |
           pip install autopep8
           autopep8 $(git ls-files '**.py*') --in-place --list-fixes -j 2
     - name: Test with pytest
       run: |
-        pytest
+        (cd sentimental_analysis && pytest --ds=sentimental_analysis.settings)

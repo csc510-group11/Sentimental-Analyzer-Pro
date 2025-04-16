@@ -44,19 +44,22 @@ def document_analysis(request):
                         if text:
                             document_text += text
                 except Exception as e:
-                    return HttpResponse("Error processing PDF file: " + str(e), status=400)
+                    return HttpResponse("Error processing PDF file: " + str(e), status=406)
             else:
                 return HttpResponse("Unsupported file type. Please upload a TXT or PDF file.", status=400)
         else:
             return HttpResponse("No file uploaded.", status=400)
 
         if document_text:
-            summary = gemini_summarize(document_text)
-            result = gemini_sentiment_analysis(document_text)
+            try:
+                summary = gemini_summarize(document_text)
+                result = gemini_sentiment_analysis(document_text)
+            except Exception as e:
+                return HttpResponse("Error during analysis: " + str(e), status=500)
 
             return render(request, 'realworld/results.html', {'sentiment': result, 'summary' : summary})
         else:
-            return HttpResponse("No document content found.", status=400)
+            return HttpResponse("No document content found.", status=401)
     
     else:
         # For GET requests, simply render the document analysis template
