@@ -56,7 +56,7 @@ class ViewsTestCase(TestCase):
         self.assertIn(b"Mock video summary", response.content)
 
     @patch("realworld.views.scrape_reviews", return_value=["review1", "review2"])
-    @patch("realworld.views.gemini_sentiment_analysis", return_value={{"pos": 0.6, "neg": 0.2, "neu": 0.2}})
+    @patch("realworld.views.gemini_sentiment_analysis", return_value={"pos": 0.6, "neg": 0.2, "neu": 0.2})
     def test_book_review(self, mock_sentiment, mock_scrape):
         response = self.client.post(reverse('book_review'), {'query': 'Test Book'})
         self.assertEqual(response.status_code, 200)
