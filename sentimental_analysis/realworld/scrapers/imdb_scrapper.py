@@ -144,8 +144,8 @@ def scrape_imdb(url):
     reactions = {}
 
 
-    print(title)
-    print(description)
+    # print(title)
+    # print(description)
 
     # inside docker, second arg = 1
 
