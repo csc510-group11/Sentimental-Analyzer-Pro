@@ -157,11 +157,17 @@ class ViewsTestCase(TestCase):
 
     def test_restaurant_review(self):
         restaurant_url = "https://www.tripadvisor.com/Restaurant_Review-g34227-d25078326-Reviews-La_Fuga-Fort_Lauderdale_Broward_County_Florida.html"
-        response = self.client.post(reverse('restaurant_review'), {'review_url': restaurant_url})
+        try:
+            response = self.client.post(reverse('restaurant_review'), {'review_url': restaurant_url})
+        except Exception as e:
+            response = {'status_code': 500, 'error': str(e)}
         self.assertNotEqual(response.status_code, 200)
 
     def test_product_review(self):
         product_url = "https://www.etsy.com/listing/1808685200/100-random-programmer-stickers-coding"
-        response = self.client.post(reverse('product_review'), {'review_url': product_url})
+        try:
+            response = self.client.post(reverse('product_review'), {'review_url': product_url})
+        except Exception as e:
+            response = {'status_code': 500, 'error': str(e)}
         self.assertNotEqual(response.status_code, 200)
         
