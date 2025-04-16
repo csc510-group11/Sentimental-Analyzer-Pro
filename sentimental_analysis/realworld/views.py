@@ -7,8 +7,7 @@ from .decorators import cache_response
 import PyPDF2
 import base64
 from dotenv import load_dotenv
-# import all from scraper.py from sentimental_analysis/Scraper
-from .Scraper.scraper import scrape_data
+
 
 load_dotenv()
 
@@ -148,7 +147,7 @@ def book_review(request):
     if request.method == 'POST':
         book_url = request.POST.get("review_url", "")
 
-        book_review_text = scrape_data(book_url, category="book")
+        book_review_text = scrape_reviews(book_url, category="book")
         if not book_review_text:
             return HttpResponse("No reviews found.", status=400)
         
@@ -164,7 +163,10 @@ def movie_review(request):
     if request.method == 'POST':
         movie_url = request.POST.get("review_url", "")
 
-        movie_review_text = scrape_data(movie_url, category="movie")
+        print('Scraping data')
+
+        movie_review_text = scrape_reviews(movie_url, category="movie")
+
         if not movie_review_text:
             return HttpResponse("No reviews found.", status=400)
         
@@ -180,7 +182,7 @@ def product_review(request):
     if request.method == 'POST':
         product_url = request.POST.get("review_url", "")
 
-        product_review_text = scrape_data(product_url, category="product")
+        product_review_text = scrape_reviews(product_url, category="product")
         if not product_review_text:
             return HttpResponse("No reviews found.", status=400)
         
