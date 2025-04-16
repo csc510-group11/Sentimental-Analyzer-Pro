@@ -52,7 +52,7 @@ class TestFunctions(unittest.TestCase):
         mock_instance.models.generate_content.assert_called_once()
 
     @patch("realworld.utils.genai.Client")
-    def test_gemini_transcribe_audio(mock_client):
+    def test_gemini_transcribe_audio(self, mock_client):
         # Create a mock instance for the client.
         mock_instance = mock_client.return_value
         # Create a mock response with the expected transcription in the text attribute.
