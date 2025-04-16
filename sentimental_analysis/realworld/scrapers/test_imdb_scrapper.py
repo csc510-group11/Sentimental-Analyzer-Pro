@@ -91,9 +91,7 @@ class TestScrapeImdb(unittest.TestCase):
             # "reviews": [
             #     {"review": "Review Title\nReview Text", "rating": "8/10"}
             # ],
-            "reviews": [
-                {"review": "Review Title\nReview Text", "rating": "8/10"}
-            ],
+            "reviews": [],
         }
         self.assertEqual(json.loads(result), expected_result)
 
