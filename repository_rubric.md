@@ -12,11 +12,11 @@ but nevertheless, here is a track record that everyone is contributing a lot)|[h
 |Docs: doco generated, format not ugly |[Readme.md](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/blob/main/README.md)| 3 |
 |Docs: what: point descriptions of each class/function (in isolation)| [Readme.md](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/blob/main/README.md)|3 |
 |Docs: how: for common use cases X,Y,Z mini-tutorials showing worked examples on how to do X,Y,Z|[Readme.md](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/blob/main/README.md)|3 |
-|Docs: why: docs tell a story, motivate the whole thing, deliver a punchline that makes you want to rush out and use the thing| [Story and Motivation for the features](https://github.com/mukunda-p/vogueX---Fashion-Recommender/blob/dev/docs/Motivation_story.pdf) |3|
-|Docs: short video, animated, hosted on your repo. That convinces people why they want to work on your code.| [Yt video](https://www.youtube.com/watch?v=p_Uy4ipak7k&feature=youtu.be)|3
+|Docs: why: docs tell a story, motivate the whole thing, deliver a punchline that makes you want to rush out and use the thing| [Story and Motivation for the features](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/tree/nafreen/assets/UseCase) |3|
+|Docs: short video, animated, hosted on your repo. That convinces people why they want to work on your code.| [Yt video](https://youtu.be/vD22rDl5F64)|3
 |Use of version control tools|Github,Git |3
-|Test cases exist|[Test Cases](https://github.com/mukunda-p/vogueX---Fashion-Recommender/tree/dev/tests)|3 |
-|Test cases are routinely executed|[Yes](https://github.com/mukunda-p/vogueX---Fashion-Recommender/actions)|3 |
+|Test cases exist|[Test Cases](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/tree/nafreen/sentimental_analysis/realworld/__tests__)|3 |
+|Test cases are routinely executed|[Yes](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/actions)|3 |
 |Issues are discussed before they are closed|All closed issues were discussed|3 |
 |Chat channel: exists|![alt text](image.png)| 3|
 |Test cases: a large proportion of the issues related to handling failing cases.|5 specific issues that were bugs were addressed|3 |
