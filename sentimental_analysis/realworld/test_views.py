@@ -160,7 +160,7 @@ class ViewsTestCase(TestCase):
         try:
             response = self.client.post(reverse('restaurant_review'), {'review_url': restaurant_url})
         except Exception as e:
-            response = {'status_code': 500, 'error': str(e)}
+            response = HttpResponse(status=500, content=str(e))
         self.assertNotEqual(response.status_code, 200)
 
     def test_product_review(self):
@@ -168,6 +168,6 @@ class ViewsTestCase(TestCase):
         try:
             response = self.client.post(reverse('product_review'), {'review_url': product_url})
         except Exception as e:
-            response = {'status_code': 500, 'error': str(e)}
+            response = HttpResponse(status=500, content=str(e))
         self.assertNotEqual(response.status_code, 200)
         
