@@ -1,5 +1,5 @@
 Django
-PyPDF2
+pypdf
 requests
 pytest
 google-genai
