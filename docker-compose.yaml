@@ -9,3 +9,4 @@ services:
       - ./sentimental_analysis:/app/sentimental_analysis
     environment:
       - PYTHONUNBUFFERED=1
+    shm_size: '2gb'
