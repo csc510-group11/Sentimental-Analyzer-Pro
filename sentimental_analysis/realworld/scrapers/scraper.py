@@ -14,8 +14,3 @@ def scrape_reviews(url, category):
     else:
         raise ValueError("Invalid category. Choose from 'restaurant', 'product', 'movie', or 'book'.")
     
-# if __name__ == "__main__":
-#     # Example usage
-#     url = "https://www.tripadvisor.com/Restaurant_Review-g1535800-d3811703-Reviews-Innachorion_Restaurant-Elafonissi_Chania_Prefecture_Crete.html"
-#     category = "restaurant"
-#     print(scrape_data(url, category))
