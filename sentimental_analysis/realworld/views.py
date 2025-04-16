@@ -91,7 +91,7 @@ def image_analysis(request):
             
             # Pass the Base64 string to the caption generation function.
             # The function should be designed to accept the Base64 data.
-            caption = generate_emotion_caption(encoded_image)
+            caption = gemini_caption_image(encoded_image)
         except Exception as e:
             return HttpResponse("Error generating caption: " + str(e), status=500)
         
@@ -115,7 +115,7 @@ def image_analysis(request):
 @cache_response
 def audio_analysis(request):
     if request.method == 'POST':
-        transcribed_text = transcribe_audio(request.FILES.get('audio').read())
+        transcribed_text = gemini_transcribe_audio(request.FILES.get('audio').read())
         result = gemini_sentiment_analysis(transcribed_text)
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : transcribed_text})
     else:

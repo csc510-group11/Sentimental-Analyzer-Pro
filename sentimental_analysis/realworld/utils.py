@@ -3,12 +3,9 @@ from .schemas import SentimentScore
 from dotenv import load_dotenv
 from google.genai import types
 
-import assemblyai as aai
-import tempfile
 import os
 import json
 import logging
-import requests
 import hashlib
 
 
@@ -97,47 +94,52 @@ def gemini_sentiment_analysis(text):
     
     return result
 
-def generate_emotion_caption(encoded_image):
-    # Optional: Customize prompt to ask for emotions
-    prompt_instruction = "Describe the scene in the image and include details about any emotions shown."
+def gemini_caption_image(encoded_image):
+    """
+    Calls the Gemini API to generate a caption for the provided image.
+    
+    Args:
+        encoded_image (str): The base64 encoded image data.
+        model (str): The Gemini model to use. Default is "gemini-2.0-flash".
+        
+    Returns:
+        str: The generated caption.
+    """
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    response = client.models.generate_content(
+        model=os.getenv("GEMINI_MODEL_NAME"),
+        contents=["What is this image?",
+                types.Part.from_bytes(data=encoded_image, mime_type="image/jpeg")])
 
-    headers = {"Authorization": f"Bearer {os.getenv('HF_API_TOKEN')}"}
-    api_url = os.getenv("HF_IMAGE_CAPTION_API_URL")
-    payload = {
-        "inputs": encoded_image,
-        "options": {"prompt": prompt_instruction}
-    }
-
-    response = requests.post(api_url, headers=headers, json=payload)
-    results = response.json()
-
-    # Depending on the API response, you might need to adjust how you extract the caption.
-    caption = results[0].get("generated_text", "")
+    logging.info("Gemini caption response: %s", response.text)
+    # Assuming the response.text is the caption
+    caption = response.text.strip()
     return caption
 
-def transcribe_audio(audio_data):
-    # Set your AssemblyAI API key.
-    aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
-    transcriber = aai.Transcriber()
+def gemini_transcribe_audio(audio_data):
+    """
+    Calls the Gemini API to transcribe the provided audio.
+    
+    Args:
+        audio_data (bytes): The binary data of the audio file.
+        model (str): The Gemini model to use. Default is "gemini-2.0-flash".
+        
+    Returns:
+        str: The transcribed text.
+    """
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    response = client.models.generate_content(
+        model=os.getenv("GEMINI_MODEL_NAME"),
+        contents=[
+            'Describe this audio clip',
+            types.Part.from_bytes(
+            data=audio_data,
+            mime_type='audio/mp3',
+            )
+        ]
+    )
 
-    # Write binary audio data to a temporary file (with .wav extension).
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
-        temp_file.write(audio_data)
-        temp_file_path = temp_file.name
-
-    try:
-        # Transcribe the audio using the temporary file path.
-        transcript = transcriber.transcribe(temp_file_path)
-        transcript_text = transcript.text
-    except Exception as e:
-        # Ensure cleanup in case of an error.
-        os.remove(temp_file_path)
-        raise e
-
-    # Clean up the temporary file.
-    os.remove(temp_file_path)
-
-    return transcript_text
+    return response.text.strip()
 
 def gemini_video_analysis(video_bytes, video_url):
     """
@@ -195,12 +197,30 @@ def gemini_video_analysis(video_bytes, video_url):
     return result
 
 def get_request_hash(request):
-    # Build a consistent representation of the request.
+    # Build a basic representation of the request.
     data = {
         'method': request.method,
         'path': request.path,
         'GET': request.GET.dict(),
         'POST': request.POST.dict(),
     }
+    # If there are any uploaded files, include their details.
+    if request.FILES:
+        files_data = {}
+        for key, file_obj in request.FILES.items():
+            # Reset the file pointer, then read content.
+            file_obj.seek(0)
+            content = file_obj.read()
+            # Calculate a hash of the file content.
+            content_hash = hashlib.sha256(content).hexdigest()
+            files_data[key] = {
+                'name': file_obj.name,
+                'size': file_obj.size,
+                'content_hash': content_hash,
+            }
+            # Reset file pointer for further processing later in the view.
+            file_obj.seek(0)
+        data['FILES'] = files_data
+    # Convert the data to a JSON string with sorted keys, and then compute a hash.
     data_str = json.dumps(data, sort_keys=True)
     return hashlib.sha256(data_str.encode('utf-8')).hexdigest()

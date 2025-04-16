@@ -126,13 +126,10 @@ cd Sentimental-Analyzer-Pro
 
 ```env
 GEMINI_API_KEY=<YOUR_GEMINI_API_KEY>
+GEMINI_MODEL_NAME=gemini-2.0-flash
 DJANGO_ALLOWED_HOSTS=0.0.0.0,localhost,127.0.0.1
 DEFAULT_ADMIN_USERNAME=admin
 DEFAULT_ADMIN_PASSWORD=admin
-HF_API_TOKEN=<YOUR_HUGGINGFACE_API_TOKEN>
-HF_IMAGE_CAPTION_API_URL=https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base
-ASSEMBLYAI_API_KEY=<YOUR_ASSEMBLYAI_API_KEY>
-GEMINI_MODEL_NAME=gemini-2.0-flash
 ```
 
 4. Use make to build and run the application.
