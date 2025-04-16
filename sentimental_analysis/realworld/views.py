@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from .scrapers.scraper import scrape_reviews
 from .utils import *
 from .decorators import cache_response
-import PyPDF2
+import pypdf
 import base64
 from dotenv import load_dotenv
 
@@ -37,7 +37,7 @@ def document_analysis(request):
                     return HttpResponse("Error decoding text file.", status=400)
             elif file_ext == 'pdf':
                 try:
-                    pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                    pdf_reader = pypdf.PdfReader(uploaded_file)
                     document_text = ""
                     for page in pdf_reader.pages:
                         text = page.extract_text()

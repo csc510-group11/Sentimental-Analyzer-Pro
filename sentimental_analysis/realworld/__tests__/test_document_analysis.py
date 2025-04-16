@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
-from PyPDF2 import PdfWriter
+from pypdf import PdfWriter
 
 class DocumentAnalysisTests(TestCase):
     def setUp(self):
