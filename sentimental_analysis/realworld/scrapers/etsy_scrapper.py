@@ -1,4 +1,3 @@
-import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -6,19 +5,55 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-import time
 import json
+import tempfile
+
+def get_driver():
+    # Use the correct path for the system-installed Chromium driver
+    service = Service(executable_path="/usr/bin/chromedriver")
+
+    options = Options()
+    # options.add_argument("--headless=new")  # new headless mode is more stable
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.binary_location = "/usr/bin/chromium"  # this is key for Chromium!
+    options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
+
+    # Avoid reusing user-data-dir between sessions
+    temp_user_data_dir = tempfile.mkdtemp()
+    options.add_argument(f"--user-data-dir={temp_user_data_dir}")
+
+    driver = webdriver.Chrome(service=service, options=options)
+    return driver
 
 def scrape_etsy(url):
-    service = Service()
-    options = webdriver.ChromeOptions()
-    # options.add_argument('--headless')
-    options.add_argument('--disable-blink-features=AutomationControlled')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-gpu')
-    # options.add_argument('--window-size=1920,1080')
-    options.add_argument('--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36')
-    driver = webdriver.Chrome(options=options)
+
+    # service = Service()
+    # options = webdriver.ChromeOptions()
+    # # options.add_argument("--headless=new")
+    # options.add_argument('--disable-blink-features=AutomationControlled')
+    # options.add_argument('--no-sandbox')
+    # options.add_argument('--disable-gpu')
+    # # options.add_argument('--window-size=1920,1080')
+    # options.add_argument('--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36')
+    # driver = webdriver.Chrome(options=options, service=service)
+
+    # options = Options()
+    # service = Service()
+    # # options.add_argument("--headless=new")  # new headless mode is more stable
+    # options.add_argument("--no-sandbox")
+    # options.add_argument("--disable-dev-shm-usage")
+    # options.add_argument("--disable-gpu")
+    # # options.binary_location = "/usr/bin/chromium"  # this is key for Chromium!
+    # options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
+    # temp_user_data_dir = tempfile.mkdtemp()
+    # options.add_argument(f"--user-data-dir={temp_user_data_dir}")
+    # driver = webdriver.Chrome(service=service, options=options)
+    
+    driver = get_driver()
+    print('driver found')
+
     driver.get(url)
     reviews = []
 
@@ -40,7 +75,7 @@ def scrape_etsy(url):
             review_title = review.select('p[id^="review-preview-toggle-"]')[0].get_text(strip=True)
         # review_title = reviews_and_stars[0].select('p[id="review-preview-toggle-01744694165"]')
         # stars = reviews_and_stars[0].select('span[class="wt-screen-reader-only"]')
-            print(stars, review_title)
+            # print(stars, review_title)
             reviews.append({"review": review_title, "rating": stars})
 
         response_dict = {
