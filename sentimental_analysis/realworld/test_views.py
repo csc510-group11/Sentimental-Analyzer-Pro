@@ -5,6 +5,9 @@ from django.urls import reverse
 from unittest.mock import patch
 from .views import text_analysis
 from django.http import HttpResponse
+import os
+
+BASE_DIR = os.path.dirname(__file__)
 
 class ViewsTestCase(TestCase):
     def setUp(self):
@@ -100,7 +103,7 @@ class ViewsTestCase(TestCase):
         self.assertIn(b"Neutral", response.content)
 
     def test_image_analysis(self):
-        with open("assets/tests/test.jpg", "rb") as img:
+        with open(os.path.join(BASE_DIR, "../../assets/tests/test.jpg"), "rb") as img:
             image_file = SimpleUploadedFile("cat.jpg", img.read(), content_type="image/jpeg")
         response = self.client.post(reverse('image_analysis'), {'image': image_file})
         print(response.content)
@@ -110,7 +113,7 @@ class ViewsTestCase(TestCase):
         self.assertIn(b"Neutral", response.content)
 
     def test_audio_analysis(self):
-        with open("assets/tests/test.wav", "rb") as audio:
+        with open(os.path.join(BASE_DIR, "../../assets/tests/test.wav"), "rb") as audio:
             audio_file = SimpleUploadedFile("sample_audio.wav", audio.read(), content_type="audio/wav")
         response = self.client.post(reverse('audio_analysis'), {'audio': audio_file})
         self.assertIn(b"Summary", response.content)
@@ -119,7 +122,7 @@ class ViewsTestCase(TestCase):
         self.assertIn(b"Neutral", response.content)
 
     def test_video_analysis(self):
-        with open("assets/tests/test.mp4", "rb") as video:
+        with open(os.path.join(BASE_DIR, "../../assets/tests/test.mp4"), "rb") as video:
             video_file = SimpleUploadedFile("sample_video.mp4", video.read(), content_type="video/mp4")
         response = self.client.post(reverse('video_analysis'), {'video_bytes': video_file})
         self.assertIn(b"Summary", response.content)
@@ -128,7 +131,7 @@ class ViewsTestCase(TestCase):
         self.assertIn(b"Neutral", response.content)
 
     def test_document_analysis(self):
-        with open("assets/tests/test.txt", "rb") as doc:
+        with open(os.path.join(BASE_DIR, "../../assets/tests/test.txt"), "rb") as doc:
             document_file = SimpleUploadedFile("test.txt", doc.read(), content_type="text/plain")
         response = self.client.post(reverse('document_analysis'), {'document': document_file})
         self.assertIn(b"Summary", response.content)
