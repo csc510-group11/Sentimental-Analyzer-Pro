@@ -120,7 +120,7 @@ def audio_analysis(request):
     if request.method == 'POST':
         transcribed_text = gemini_transcribe_audio(request.FILES.get('audio').read())
         result = gemini_sentiment_analysis(transcribed_text)
-        return render(request, 'realworld/results.html', {'sentiment': result, 'text' : transcribed_text})
+        return render(request, 'realworld/results.html', {'sentiment': result, 'summary' : transcribed_text})
     else:
         return render(request, 'realworld/audio_analysis.html')  
     
