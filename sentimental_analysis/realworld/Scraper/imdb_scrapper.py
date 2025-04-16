@@ -6,28 +6,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+import time
 import json
 import tempfile
-
-def get_driver():
-    # Use the correct path for the system-installed Chromium driver
-    service = Service(executable_path="/usr/bin/chromedriver")
-
-    options = Options()
-    options.add_argument("--headless=new")  # new headless mode is more stable
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.binary_location = "/usr/bin/chromium"  # this is key for Chromium!
-
-    options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
-
-    # Avoid reusing user-data-dir between sessions
-    temp_user_data_dir = tempfile.mkdtemp()
-    options.add_argument(f"--user-data-dir={temp_user_data_dir}")
-
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
 
 
 def format_url(url):  
@@ -35,28 +16,19 @@ def format_url(url):
         url = url[:-1]
     return url
 
-def scrape_imdb_rating(url, driver = None):
+def scrape_imdb_rating(url):
+    service = Service(executable_path="/usr/bin/chromedriver")
+    # service = Service()
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
+    options.binary_location = "/usr/bin/chromium"
+    temp_user_data_dir = tempfile.mkdtemp()
+    options.add_argument(f"--user-data-dir={temp_user_data_dir}")
 
-    if driver is None:
-        service = Service()
-        options = Options()
-        options.add_argument("--headless=new")  # new headless mode is more stable
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-gpu")
-        temp_user_data_dir = tempfile.mkdtemp()
-        options.add_argument(f"--user-data-dir={temp_user_data_dir}")
+    driver = webdriver.Chrome(service=service,options=options)
 
-        # options = webdriver.ChromeOptions()
-        # options.add_argument('--headless')
-        options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
-
-        driver = webdriver.Chrome(service=service,options=options)
-    else:
-        driver = get_driver()
     driver.get(url)
-
-    # print("rating scrape", url)
 
     # time.sleep(1)
 
@@ -82,23 +54,19 @@ def scrape_imdb_rating(url, driver = None):
         driver.quit()
 
 
-def scrape_imdb_review(url, driver = None):
-    if driver is None:
-        service = Service()
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
+def scrape_imdb_review(url):
+    # service = Service(executable_path="/usr/bin/chromedriver")
+    service = Service()
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
+    # options.binary_location = "/usr/bin/chromium"
+    # temp_user_data_dir = tempfile.mkdtemp()
+    # options.add_argument(f"--user-data-dir={temp_user_data_dir}")
 
+    driver = webdriver.Chrome(service=service,options=options)
 
-        driver = webdriver.Chrome(service=service,options=options)
-        print('got driver')
-    else:
-        driver = get_driver()
-    
-    # print('here')
     driver.get(url)
-
-    # print("review scrape", url)
 
     try:
         WebDriverWait(driver, 15).until(
@@ -128,7 +96,8 @@ def scrape_imdb_review(url, driver = None):
     except Exception as e:
         print("Reviews not found:")
         return None
-
+    finally:
+        driver.quit()
 
 
 def scrape_imdb(url):
@@ -147,16 +116,13 @@ def scrape_imdb(url):
     print(title)
     print(description)
 
-    # inside docker, second arg = 1
-
-    imdb_review_url = url+'/reviews/?ref_=tt_ururv_sm'
-    reviews = scrape_imdb_review(imdb_review_url,1)
-
-
-    imdb_rating_url = url+'/ratings/?ref_=tt_ov_rat'   
-    reactions = scrape_imdb_rating(imdb_rating_url,1)
+    imdb_rating_url = url+'/ratings/?ref_=tt_ov_rat'
+    reactions = scrape_imdb_rating(imdb_rating_url)
     # print(reactions)
 
+    imdb_review_url = url+'/reviews/?ref_=tt_ururv_sm'
+    reviews = scrape_imdb_review(imdb_review_url)
+    response = requests.get(imdb_review_url, headers=headers)
 
     response_dict = {
         "title": title,
@@ -171,8 +137,8 @@ def scrape_imdb(url):
 
 
 
-# movie_url = 'https://www.imdb.com/title/tt1825683'
-# review_dict = scrape_imdb(movie_url)
-# print(review_dict)
+movie_url = 'https://www.imdb.com/title/tt1825683'
+review_dict = scrape_imdb(movie_url)
+print(review_dict)
 
 
