@@ -88,6 +88,9 @@ class TestScrapeImdb(unittest.TestCase):
             "title": "Movie Title",
             "description": "Movie Description",
             "reactions": {'9': "200", '10': "100"},
+            # "reviews": [
+            #     {"review": "Review Title\nReview Text", "rating": "8/10"}
+            # ],
             "reviews": [
                 {"review": "Review Title\nReview Text", "rating": "8/10"}
             ],
