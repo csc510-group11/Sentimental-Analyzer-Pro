@@ -104,5 +104,3 @@ def scrape_imdb(url):
     # print("completed", len(reviews))
     
     return json.dumps(response_dict,indent=4)
-
-
