@@ -2,13 +2,7 @@
 
 > Next-gen sentiment analyzer, powered by AI that gets you!
 
-[![DOI](https://zenodo.org/badge/869224666.svg)](https://doi.org/10.5281/zenodo.14226600)  
-[![GitHub Release](https://img.shields.io/github/v/release/csc510-group11/Sentimental-Analyzer-Pro)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/releases)  
-[![Build](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/actions/workflows/main.yml/badge.svg)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/actions/workflows/main.yml)  
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)  
-[![Python](https://img.shields.io/badge/python-latest-brightgreen.svg)](https://www.python.org/)  
-[![codecov](https://codecov.io/gh/csc510-group11/Sentimental-Analyzer-Pro/graph/badge.svg?token=G314IO3WO7)](https://codecov.io/gh/csc510-group11/Sentimental-Analyzer-Pro)  
-[![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
+[![GitHub Release](https://img.shields.io/github/v/release/csc510-group11/Sentimental-Analyzer-Pro)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/releases)  [![Python](https://img.shields.io/badge/python-latest-brightgreen.svg)](https://www.python.org/)  [![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)  [![Documentation Status](https://readthedocs.org/projects/ansicolortags/badge/?version=latest)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/blob/dev/README.md)  [![GitHub license](https://img.shields.io/github/license/csc510-group11/Sentimental-Analyzer-Pro)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/blob/dev/LICENSE.md)  [![Github Repo size in bytes](https://img.shields.io/github/languages/code-size/csc510-group11/Sentimental-Analyzer-Pro)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro) [![GitHub issues](https://img.shields.io/github/issues/csc510-group11/Sentimental-Analyzer-Pro)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/issues?q=is%3Aopen) [![GitHub closed issues](https://img.shields.io/github/issues-closed/csc510-group11/Sentimental-Analyzer-Pro)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/issues?q=is%3Aissue+is%3Aclosed)  [![Github pull requests](https://img.shields.io/github/issues-pr/csc510-group11/Sentimental-Analyzer-Pro)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/pulls)  [![Github closed pull requests](https://img.shields.io/github/issues-pr-closed/csc510-group11/Sentimental-Analyzer-Pro)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/pulls?q=is%3Apr+is%3Aclosed)  [![github workflow](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/actions/workflows/style_checker.yml/badge.svg)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/actions/workflows/style_checker.yml)  [![github workflow](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/actions/workflows/main.yml/badge.svg)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/actions/workflows/main.yml)  [![codecov](https://codecov.io/gh/csc510-group11/Sentimental-Analyzer-Pro/graph/badge.svg?token=G314IO3WO7)](https://codecov.io/gh/csc510-group11/Sentimental-Analyzer-Pro) ![GitHub language count](https://img.shields.io/github/languages/count/csc510-group11/Sentimental-Analyzer-Pro) [![DOI](https://zenodo.org/badge/937265974.svg)](https://doi.org/10.5281/zenodo.14938870)
 
 ---
 
@@ -20,11 +14,11 @@ Tired of scrolling through endless reviews to figure out if something’s actual
 2. [Features](#features)
 3. [Installation and Setup](#installation-and-setup)
 4. [Usage](#usage)
-5. [Docker Deployment](#docker-deployment)
-6. [Roadmap and Progress](#roadmap)
-7. [Contributing](#contributing)
-8. [Connect with Us](#connect-with-us)
-9. [Team Members](#team-members)
+5. [Roadmap and Progress](#roadmap-and-progress)
+6. [Team Members](#team-members)
+7. [Code of Conduct](#code-of-conduct)
+8. [Contribution](#contribution)
+9. [License](#license)
 10. [Citation](#citation)
 
 ---
@@ -106,8 +100,32 @@ Additionally, the system employs an intelligent caching mechanism to speed up re
 
 ---
 
-## Contributing
+## Team Members
 
-Contributions are welcome! Please refer to our [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
+- [Md Atiqur Rahman](https://github.com/atiqur-rahman-0041)
+- [Nazia Afreen](https://github.com/NaziaAfreen015)
+- [Sohom Datta](https://github.com/sohomdatta1)
 
 ---
+
+## Code of Conduct
+
+Please adhere to our [Code of Conduct](CODE_OF_CONDUCT.md) in all your interactions with the project.
+
+---
+
+## Contribution
+
+Please refer the [CONTRIBUTING.md](./CONTRIBUTING.md) file for instructions on how to contribute to our repository.
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE.md) file for details.
+
+---
+
+## Citation
+
+Please refer to the [CITATION.md](./CITATION.cff) file for citation details.
