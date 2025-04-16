@@ -37,7 +37,7 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(result, {"pos": 0.7, "neu": 0.2, "neg": 0.1})
         mock_client.assert_called_once()
 
-    @patch("genai.Client")
+    @patch("realworld.utils.genai.Client")
     def test_gemini_caption_image(self, mock_client):
         mock_instance = mock_client.return_value
         mock_response = MagicMock()
