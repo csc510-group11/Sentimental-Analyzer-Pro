@@ -19,7 +19,7 @@ class TestFormatUrl(unittest.TestCase):
 
 class TestScrapeImdbSelenium(unittest.TestCase):
     @patch("selenium.webdriver.Chrome")
-    def test_scrape_imdb_selenium_success(self, mock_chrome):
+    def test_scrape_imdb_rating_success(self, mock_chrome):
         mock_driver = MagicMock()
         mock_chrome.return_value = mock_driver
 
@@ -39,7 +39,7 @@ class TestScrapeImdbSelenium(unittest.TestCase):
         self.assertEqual(reactions, expected_reactions)
 
     @patch("selenium.webdriver.Chrome")
-    def test_scrape_imdb_selenium_histogram_not_found(self, mock_chrome):
+    def test_scrape_imdb_rating_histogram_not_found(self, mock_chrome):
         mock_driver = MagicMock()
         mock_chrome.return_value = mock_driver
 
@@ -54,8 +54,8 @@ class TestScrapeImdbSelenium(unittest.TestCase):
 
 class TestScrapeImdb(unittest.TestCase):
     @patch("requests.get")
-    @patch("imdb_scrapper.scrape_imdb_selenium")
-    def test_scrape_imdb_success(self, mock_scrape_imdb_selenium, mock_requests_get):
+    @patch("imdb_scrapper.scrape_imdb_rating")
+    def test_scrape_imdb_success(self, mock_scrape_imdb_rating, mock_requests_get):
         mock_main_response = MagicMock()
         mock_main_response.text = """
         <html>
@@ -65,7 +65,7 @@ class TestScrapeImdb(unittest.TestCase):
         """
         mock_requests_get.return_value = mock_main_response
 
-        mock_scrape_imdb_selenium.return_value = {10: "100", 9: "200"}
+        mock_scrape_imdb_rating.return_value = {10: "100", 9: "200"}
 
         mock_reviews_response = MagicMock()
         mock_reviews_response.text = """
@@ -95,8 +95,8 @@ class TestScrapeImdb(unittest.TestCase):
         self.assertEqual(json.loads(result), expected_result)
 
     @patch("requests.get")
-    @patch("imdb_scrapper.scrape_imdb_selenium")
-    def test_scrape_imdb_no_reviews(self, mock_scrape_imdb_selenium, mock_requests_get):
+    @patch("imdb_scrapper.scrape_imdb_rating")
+    def test_scrape_imdb_no_reviews(self, mock_scrape_imdb_rating, mock_requests_get):
         mock_main_response = MagicMock()
         mock_main_response.text = """
         <html>
@@ -106,7 +106,7 @@ class TestScrapeImdb(unittest.TestCase):
         """
         mock_requests_get.return_value = mock_main_response
 
-        mock_scrape_imdb_selenium.return_value = {10: "100", 9: "200"}
+        mock_scrape_imdb_rating.return_value = {10: "100", 9: "200"}
 
         mock_reviews_response = MagicMock()
         mock_reviews_response.text = """
