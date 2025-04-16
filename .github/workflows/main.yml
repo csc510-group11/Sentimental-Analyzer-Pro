@@ -27,7 +27,7 @@ jobs:
     - name: Lint with pylint
       run: |
         pip install pylint
-        pylint --fsentimental_analysisail-under=0 /**.py
+        pylint /**.py
     - name: Formatting with autopep
       run: |
           pip install autopep8
