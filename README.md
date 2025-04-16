@@ -3,11 +3,11 @@
 > Next-gen sentiment analyzer, powered by AI that gets you!
 
 [![DOI](https://zenodo.org/badge/869224666.svg)](https://doi.org/10.5281/zenodo.14226600)  
-[![GitHub Release](https://img.shields.io/github/v/release/SE-Group20/Sentimental-Analyzer-Pro)](https://github.com/SE-Group20/Sentimental-Analyzer-Pro/releases)  
-[![Build](https://github.com/csc510-group11/SentiLLyzer/actions/workflows/main.yml/badge.svg)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/actions/workflows/main.yml)  
+[![GitHub Release](https://img.shields.io/github/v/release/csc510-group11/Sentimental-Analyzer-Pro)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/releases)  
+[![Build](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/actions/workflows/main.yml/badge.svg)](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/actions/workflows/main.yml)  
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)  
 [![Python](https://img.shields.io/badge/python-latest-brightgreen.svg)](https://www.python.org/)  
-[![codecov](https://codecov.io/gh/csc510-group11/SentiLLyzer/graph/badge.svg?token=G314IO3WO7)](https://codecov.io/gh/csc510-group11/SentiLLyzer)  
+[![codecov](https://codecov.io/gh/csc510-group11/Sentimental-Analyzer-Pro/graph/badge.svg?token=G314IO3WO7)](https://codecov.io/gh/csc510-group11/Sentimental-Analyzer-Pro)  
 [![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
 
 ---

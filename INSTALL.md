@@ -3,7 +3,7 @@
 1. **Clone the Repository:**
 
     ```bash
-    git clone https://github.com/csc510-group11/SentiLLyzer.git
+    git clone https://github.com/csc510-group11/Sentimental-Analyzer-Pro.git
     cd SentiLLyzer
     ```
 

@@ -8,7 +8,7 @@ Thank you for considering contributing to our project! Here are some guidelines 
 2. **Clone your fork**: Clone your forked repository to your local machine.
 
     ```bash
-    git clone https://github.com/csc510-group11/SentiLLyzer.git
+    git clone https://github.com/csc510-group11/Sentimental-Analyzer-Pro.git
     ```
 
 3. **Create a branch**: Create a new branch for your feature or bugfix.
@@ -38,7 +38,7 @@ Please adhere to our [Code of Conduct](CODE_OF_CONDUCT.md) in all your interacti
 
 ## Reporting Issues
 
-If you find a bug or have a feature request, please create an issue in the [issue tracker](https://github.com/csc510-group11/SentiLLyzer.git/issues).
+If you find a bug or have a feature request, please create an issue in the [issue tracker](https://github.com/csc510-group11/Sentimental-Analyzer-Pro.git/issues).
 
 ## Style Guide
 
