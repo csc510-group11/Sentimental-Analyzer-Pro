@@ -7,3 +7,5 @@ services:
       - .env
     volumes:
       - ./sentimental_analysis:/app/sentimental_analysis
+    environment:
+      - PYTHONUNBUFFERED=1
