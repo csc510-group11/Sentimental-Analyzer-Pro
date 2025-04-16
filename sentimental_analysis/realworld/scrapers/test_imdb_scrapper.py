@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from bs4 import BeautifulSoup
 import json
-from imdb_scrapper import format_url, scrape_imdb_selenium, scrape_imdb
+from imdb_scrapper import format_url, scrape_imdb_rating, scrape_imdb
 
 
 class TestFormatUrl(unittest.TestCase):
@@ -33,7 +33,7 @@ class TestScrapeImdbSelenium(unittest.TestCase):
         mock_driver.quit = MagicMock()
 
         url = "https://imdb.com/ratings"
-        reactions = scrape_imdb_selenium(url)
+        reactions = scrape_imdb_rating(url)
 
         expected_reactions = {10: "10", 9: "20", 8: "30"}
         self.assertEqual(reactions, expected_reactions)
@@ -47,7 +47,7 @@ class TestScrapeImdbSelenium(unittest.TestCase):
         mock_driver.quit = MagicMock()
 
         url = "https://imdb.com/ratings"
-        reactions = scrape_imdb_selenium(url)
+        reactions = scrape_imdb_rating(url)
 
         self.assertEqual({},reactions)
 
