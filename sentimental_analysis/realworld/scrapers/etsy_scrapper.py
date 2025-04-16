@@ -10,6 +10,7 @@ import time
 import json
 
 def scrape_etsy(url):
+    # service = Service('/usr/local/bin/chromedriver')
     service = Service()
     options = webdriver.ChromeOptions()
     # options.add_argument('--headless')
@@ -18,7 +19,7 @@ def scrape_etsy(url):
     options.add_argument('--disable-gpu')
     # options.add_argument('--window-size=1920,1080')
     options.add_argument('--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36')
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(options=options, service=service)
     driver.get(url)
     reviews = []
 
@@ -40,7 +41,7 @@ def scrape_etsy(url):
             review_title = review.select('p[id^="review-preview-toggle-"]')[0].get_text(strip=True)
         # review_title = reviews_and_stars[0].select('p[id="review-preview-toggle-01744694165"]')
         # stars = reviews_and_stars[0].select('span[class="wt-screen-reader-only"]')
-            print(stars, review_title)
+            # print(stars, review_title)
             reviews.append({"review": review_title, "rating": stars})
 
         response_dict = {
