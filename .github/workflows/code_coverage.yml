@@ -18,6 +18,8 @@ jobs:
     - name: Run the tests
       env:
         SCRAPEOPS_API_SECRET: ${{ secrets.SCRAPEOPS_API_SECRET }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        GEMINI_MODEL_NAME: ${{ secrets.GEMINI_MODEL_NAME }}
       run: |
           pip install -r requirements.txt
           (cd sentimental_analysis && pytest --ds=sentimental_analysis.settings --cov=./ --cov-config=../test/.coveragerc --cov-report=xml)
