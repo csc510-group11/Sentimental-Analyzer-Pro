@@ -54,3 +54,9 @@ def scrape_etsy(url):
         return None
     finally:
         driver.quit()
+
+
+
+
+etsy_url = "https://www.etsy.com/listing/1808685200/100-random-programmer-stickers-coding"
+print(scrape_etsy(etsy_url))
