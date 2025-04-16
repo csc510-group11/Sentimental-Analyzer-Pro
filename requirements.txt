@@ -1,11 +1,10 @@
 Django
-PyPDF2
+pypdf
 requests
 pytest
 google-genai
 pytest-django
 dotenv
-assemblyai
 requests
 beautifulsoup4
 selenium

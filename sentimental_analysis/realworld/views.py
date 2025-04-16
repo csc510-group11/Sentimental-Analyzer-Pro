@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from .scrapers.scraper import scrape_reviews
 from .utils import *
 from .decorators import cache_response
-import PyPDF2
+import pypdf
 import base64
 from dotenv import load_dotenv
 
@@ -38,26 +38,29 @@ def document_analysis(request):
                     return HttpResponse("Error decoding text file.", status=400)
             elif file_ext == 'pdf':
                 try:
-                    pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                    pdf_reader = pypdf.PdfReader(uploaded_file)
                     document_text = ""
                     for page in pdf_reader.pages:
                         text = page.extract_text()
                         if text:
                             document_text += text
                 except Exception as e:
-                    return HttpResponse("Error processing PDF file: " + str(e), status=400)
+                    return HttpResponse("Error processing PDF file: " + str(e), status=406)
             else:
                 return HttpResponse("Unsupported file type. Please upload a TXT or PDF file.", status=400)
         else:
             return HttpResponse("No file uploaded.", status=400)
 
         if document_text:
-            summary = gemini_summarize(document_text)
-            result = gemini_sentiment_analysis(document_text)
+            try:
+                summary = gemini_summarize(document_text)
+                result = gemini_sentiment_analysis(document_text)
+            except Exception as e:
+                return HttpResponse("Error during analysis: " + str(e), status=500)
 
             return render(request, 'realworld/results.html', {'sentiment': result, 'summary' : summary})
         else:
-            return HttpResponse("No document content found.", status=400)
+            return HttpResponse("No document content found.", status=401)
     
     else:
         # For GET requests, simply render the document analysis template
@@ -92,7 +95,7 @@ def image_analysis(request):
             
             # Pass the Base64 string to the caption generation function.
             # The function should be designed to accept the Base64 data.
-            caption = generate_emotion_caption(encoded_image)
+            caption = gemini_caption_image(encoded_image)
         except Exception as e:
             return HttpResponse("Error generating caption: " + str(e), status=500)
         
@@ -116,7 +119,7 @@ def image_analysis(request):
 @cache_response
 def audio_analysis(request):
     if request.method == 'POST':
-        transcribed_text = transcribe_audio(request.FILES.get('audio').read())
+        transcribed_text = gemini_transcribe_audio(request.FILES.get('audio').read())
         result = gemini_sentiment_analysis(transcribed_text)
         return render(request, 'realworld/results.html', {'sentiment': result, 'text' : transcribed_text})
     else:

@@ -1,0 +1,14 @@
+cff-version: 1.1.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: Md Atiqur
+  given-names: Rahman
+- family-names: Nazia
+  given-names: Afreen
+- family-names: Sohom
+  given-names: Datta
+orcid: https://orcid.org/0000-0000-0000-0000
+title: "SentiLLyzer: Next-gen sentiment analyzer, powered by AI that gets you!"
+version: 1.0.0
+DOI: 10.5281/zenodo.1234567
+date-released: 04-15-2025

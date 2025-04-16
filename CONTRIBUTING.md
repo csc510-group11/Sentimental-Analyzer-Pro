@@ -1,55 +1,53 @@
-# Contributing to Sentimental-Analyzer-Pro
+# Contributing to the Project
 
-Follow the set of guidelines below to contribute to Sentimental-Analyzer-Pro!
+Thank you for considering contributing to our project! Here are some guidelines to help you get started.
+
+## How to Contribute
+
+1. **Fork the repository**: Click the "Fork" button at the top right of the repository page.
+2. **Clone your fork**: Clone your forked repository to your local machine.
+
+    ```bash
+    git clone https://github.com/csc510-group11/Sentimental-Analyzer-Pro.git
+    ```
+
+3. **Create a branch**: Create a new branch for your feature or bugfix.
+
+    ```bash
+    git checkout -b feature-or-bugfix-name
+    ```
+
+4. **Make changes**: Make your changes to the codebase.
+5. **Commit changes**: Commit your changes with a meaningful commit message.
+
+    ```bash
+    git commit -m "Description of the changes"
+    ```
+
+6. **Push changes**: Push your changes to your forked repository.
+
+    ```bash
+    git push origin feature-or-bugfix-name
+    ```
+
+7. **Create a Pull Request**: Open a pull request to the main repository. Provide a clear description of your changes and any related issues.
 
 ## Code of Conduct
 
-By participating, you are expected to uphold this code.
+Please adhere to our [Code of Conduct](CODE_OF_CONDUCT.md) in all your interactions with the project.
 
-Prerequistes required before starting this project
+## Reporting Issues
 
-1. Must be a graduate student at NC State University
-2. Must be a student in Software Engineering Course in Fall 2020
-3. Have proficiency in Python and Django
+If you find a bug or have a feature request, please create an issue in the [issue tracker](https://github.com/csc510-group11/Sentimental-Analyzer-Pro.git/issues).
 
-## How can I Contribute -
- 
-### Reporting Bugs
+## Style Guide
 
-This section guides you through submitting a bug report for Sentimental-Analyzer-Pro. 
-Following these guidelines helps maintainers and the community understand your report, reproduce the behavior and find related reports.
+- Follow the coding style used in the project.
+- Write clear and concise commit messages.
+- Include comments and documentation where necessary.
 
-Before Submitting A Bug Report
+## Testing
 
-Check the debugging guide
+Ensure that your changes do not break existing tests and add new tests for your changes if applicable.
 
-Check the FAQs on the forum for a list of common questions and problems.
-Determine which repository the problem should be reported in.
-
-Perform a cursory search to see if the problem has already been reported. 
-
-## How Do I Submit A (Good) Bug Report?
-
-Use a clear and descriptive title for the issue to identify the problem.
-
-Describe the exact steps which reproduce the problem in as many details as possible.
-
-Provide specific examples to demonstrate the steps. 
-
-Describe the behavior you observed after following the steps and point out what exactly is the problem with that behavior.
-
-Explain which behavior you expected to see instead and why.
-
-Include screenshots and animated GIFs which show you following the described steps and clearly demonstrate the problem. 
-
-If the problem is related to performance or memory, include a CPU profile capture with your report.
-
-## Pull Requests
-
-The process described here has several goals:
-
-Maintain the projects quality
-
-Fix problems that are important to users
-
-Enable a sustainable system for the projects maintainers to review contributions
+Thank you for your contributions!
