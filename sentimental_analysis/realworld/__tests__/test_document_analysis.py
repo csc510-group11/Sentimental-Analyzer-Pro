@@ -38,7 +38,7 @@ class DocumentAnalysisTests(TestCase):
         file_data = BytesIO(file_content.encode('utf-8'))
         file_data.name = "test_document.txt"
         response = self.client.post(self.url, {'document': file_data})
-        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.status_code, 200)
 
     def test_pdf_file_upload(self):
         """Test that a valid PDF file is processed correctly."""
