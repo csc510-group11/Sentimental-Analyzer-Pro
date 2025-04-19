@@ -2,7 +2,8 @@ import unittest
 from unittest.mock import patch, MagicMock
 from bs4 import BeautifulSoup
 import json
-from imdb_scrapper import format_url, scrape_imdb_rating, scrape_imdb
+from ..scrapers.imdb_scrapper import format_url, scrape_imdb_rating, scrape_imdb
+from selenium import webdriver
 
 
 class TestFormatUrl(unittest.TestCase):
@@ -54,7 +55,7 @@ class TestScrapeImdbSelenium(unittest.TestCase):
 
 class TestScrapeImdb(unittest.TestCase):
     @patch("requests.get")
-    @patch("imdb_scrapper.scrape_imdb_rating")
+    @patch("realworld.scrapers.imdb_scrapper.scrape_imdb_rating")
     def test_scrape_imdb_success(self, mock_scrape_imdb_rating, mock_requests_get):
         mock_main_response = MagicMock()
         mock_main_response.text = """
@@ -96,7 +97,7 @@ class TestScrapeImdb(unittest.TestCase):
         self.assertEqual(json.loads(result), expected_result)
 
     @patch("requests.get")
-    @patch("imdb_scrapper.scrape_imdb_rating")
+    @patch("realworld.scrapers.imdb_scrapper.scrape_imdb_rating")
     def test_scrape_imdb_no_reviews(self, mock_scrape_imdb_rating, mock_requests_get):
         mock_main_response = MagicMock()
         mock_main_response.text = """

@@ -1,10 +1,10 @@
 import unittest
 import json
 from unittest.mock import patch, Mock
-from tripadvisor_scrapper import scrape_tripadvisor
+from ..scrapers.tripadvisor_scrapper import scrape_tripadvisor
 
 class TestScrapeTripAdvisor(unittest.TestCase):
-    @patch("tripadvisor_scrapper.requests.get")
+    @patch("realworld.scrapers.tripadvisor_scrapper.requests.get")
     def test_scrape_tripadvisor_success(self, mock_get):
         mock_html = """
         <html>
@@ -67,7 +67,7 @@ class TestScrapeTripAdvisor(unittest.TestCase):
 
         self.assertEqual(json.loads(result), expected_result)
 
-    @patch("tripadvisor_scrapper.requests.get")
+    @patch("realworld.scrapers.tripadvisor_scrapper.requests.get")
     def test_scrape_tripadvisor_no_reviews(self, mock_get):
         mock_html = """
         <html>
@@ -105,7 +105,7 @@ class TestScrapeTripAdvisor(unittest.TestCase):
 
         self.assertEqual(json.loads(result), expected_result)
 
-    @patch("tripadvisor_scrapper.requests.get")
+    @patch("realworld.scrapers.tripadvisor_scrapper.requests.get")
     def test_scrape_tripadvisor_invalid_html(self, mock_get):
         mock_html = "<html><head><title>Invalid Page</title></head><body></body></html>"
 
@@ -118,7 +118,7 @@ class TestScrapeTripAdvisor(unittest.TestCase):
         with self.assertRaises(AttributeError):
             scrape_tripadvisor(url)
 
-    @patch("tripadvisor_scrapper.requests.get")
+    @patch("realworld.scrapers.tripadvisor_scrapper.requests.get")
     def test_scrape_tripadvisor_http_error(self, mock_get):
         mock_response = Mock()
         mock_response.status_code = 404

@@ -3,7 +3,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import User
 from django.urls import reverse
 from unittest.mock import patch
-from .views import text_analysis
 from django.http import HttpResponse
 import os
 
@@ -103,7 +102,7 @@ class ViewsTestCase(TestCase):
         self.assertIn(b"Neutral", response.content)
 
     def test_image_analysis(self):
-        with open(os.path.join(BASE_DIR, "../../assets/tests/test.jpg"), "rb") as img:
+        with open(os.path.join(BASE_DIR, "../../../assets/tests/test.jpg"), "rb") as img:
             image_file = SimpleUploadedFile("cat.jpg", img.read(), content_type="image/jpeg")
         response = self.client.post(reverse('image_analysis'), {'image': image_file})
         print(response.content)
@@ -113,7 +112,7 @@ class ViewsTestCase(TestCase):
         self.assertIn(b"Neutral", response.content)
 
     def test_audio_analysis(self):
-        with open(os.path.join(BASE_DIR, "../../assets/tests/test.wav"), "rb") as audio:
+        with open(os.path.join(BASE_DIR, "../../../assets/tests/test.wav"), "rb") as audio:
             audio_file = SimpleUploadedFile("sample_audio.wav", audio.read(), content_type="audio/wav")
         response = self.client.post(reverse('audio_analysis'), {'audio': audio_file})
         self.assertIn(b"Summary", response.content)
@@ -122,7 +121,7 @@ class ViewsTestCase(TestCase):
         self.assertIn(b"Neutral", response.content)
 
     def test_video_analysis(self):
-        with open(os.path.join(BASE_DIR, "../../assets/tests/test.mp4"), "rb") as video:
+        with open(os.path.join(BASE_DIR, "../../../assets/tests/test.mp4"), "rb") as video:
             video_file = SimpleUploadedFile("sample_video.mp4", video.read(), content_type="video/mp4")
         response = self.client.post(reverse('video_analysis'), {'video_bytes': video_file})
         self.assertIn(b"Summary", response.content)
@@ -131,7 +130,7 @@ class ViewsTestCase(TestCase):
         self.assertIn(b"Neutral", response.content)
 
     def test_document_analysis(self):
-        with open(os.path.join(BASE_DIR, "../../assets/tests/test.txt"), "rb") as doc:
+        with open(os.path.join(BASE_DIR, "../../../assets/tests/test.txt"), "rb") as doc:
             document_file = SimpleUploadedFile("test.txt", doc.read(), content_type="text/plain")
         response = self.client.post(reverse('document_analysis'), {'document': document_file})
         self.assertIn(b"Summary", response.content)
@@ -161,7 +160,10 @@ class ViewsTestCase(TestCase):
             response = self.client.post(reverse('restaurant_review'), {'review_url': restaurant_url})
         except Exception as e:
             response = HttpResponse(status=500, content=str(e))
-        self.assertNotEqual(response.status_code, 200)
+        self.assertIn(b"Summary", response.content)
+        self.assertIn(b"Positive", response.content)
+        self.assertIn(b"Negative", response.content)
+        self.assertIn(b"Neutral", response.content)
 
     def test_product_review(self):
         product_url = "https://www.etsy.com/listing/1808685200/100-random-programmer-stickers-coding"

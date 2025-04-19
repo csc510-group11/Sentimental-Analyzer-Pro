@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import hashlib
-from .utils import (
+from ..utils import (
     gemini_summarize,
     gemini_sentiment_analysis,
     gemini_caption_image,

@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from bs4 import BeautifulSoup
 import json
-from goodreads_scrapper import scrape_goodreads_reviews
+from ..scrapers.goodreads_scrapper import scrape_goodreads_reviews
 
 class TestScrapeGoodreadsReviews(unittest.TestCase):
     @patch("requests.get")

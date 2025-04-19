@@ -1,13 +1,13 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import json
-from etsy_scrapper import scrape_etsy
+from ..scrapers.etsy_scrapper import scrape_etsy
 
 
 class TestScrapeEtsy(unittest.TestCase):
-    @patch("etsy_scrapper.webdriver.Chrome")
-    @patch("etsy_scrapper.WebDriverWait")
-    @patch("etsy_scrapper.BeautifulSoup")
+    @patch("realworld.scrapers.etsy_scrapper.webdriver.Chrome")
+    @patch("realworld.scrapers.etsy_scrapper.WebDriverWait")
+    @patch("realworld.scrapers.etsy_scrapper.BeautifulSoup")
     def test_scrape_etsy_success(self, mock_bs, mock_wait, mock_driver):
         mock_driver_instance = MagicMock()
         mock_driver.return_value = mock_driver_instance
@@ -39,9 +39,9 @@ class TestScrapeEtsy(unittest.TestCase):
         self.assertEqual(result_dict["reviews"][0]["review"], "ABCDEFG")
         self.assertEqual(result_dict["reviews"][0]["rating"], "ABCDEFG")
 
-    @patch("etsy_scrapper.webdriver.Chrome")
-    @patch("etsy_scrapper.WebDriverWait")
-    @patch("etsy_scrapper.BeautifulSoup")
+    @patch("realworld.scrapers.etsy_scrapper.webdriver.Chrome")
+    @patch("realworld.scrapers.etsy_scrapper.WebDriverWait")
+    @patch("realworld.scrapers.etsy_scrapper.BeautifulSoup")
     def test_scrape_etsy_no_reviews(self, mock_bs, mock_wait, mock_driver):
         mock_driver_instance = MagicMock()
         mock_driver.return_value = mock_driver_instance
@@ -63,9 +63,9 @@ class TestScrapeEtsy(unittest.TestCase):
         self.assertEqual(result_dict["title"], "Test Product")
         self.assertEqual(len(result_dict["reviews"]), 0)
 
-    @patch("etsy_scrapper.webdriver.Chrome")
-    @patch("etsy_scrapper.WebDriverWait")
-    @patch("etsy_scrapper.BeautifulSoup")
+    @patch("realworld.scrapers.etsy_scrapper.webdriver.Chrome")
+    @patch("realworld.scrapers.etsy_scrapper.WebDriverWait")
+    @patch("realworld.scrapers.etsy_scrapper.BeautifulSoup")
     def test_scrape_etsy_title_not_found(self, mock_bs, mock_wait, mock_driver):
         mock_driver_instance = MagicMock()
         mock_driver.return_value = mock_driver_instance
@@ -79,9 +79,9 @@ class TestScrapeEtsy(unittest.TestCase):
 
         self.assertIsNone(result)
 
-    @patch("etsy_scrapper.webdriver.Chrome")
-    @patch("etsy_scrapper.WebDriverWait")
-    @patch("etsy_scrapper.BeautifulSoup")
+    @patch("realworld.scrapers.etsy_scrapper.webdriver.Chrome")
+    @patch("realworld.scrapers.etsy_scrapper.WebDriverWait")
+    @patch("realworld.scrapers.etsy_scrapper.BeautifulSoup")
     def test_scrape_etsy_exception_handling(self, mock_bs, mock_wait, mock_driver):
         mock_wait.side_effect = Exception("Driver error")
 
