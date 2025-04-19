@@ -38,7 +38,7 @@ Please adhere to our [Code of Conduct](CODE_OF_CONDUCT.md) in all your interacti
 
 ## Reporting Issues
 
-If you find a bug or have a feature request, please create an issue in the [issue tracker](https://github.com/csc510-group11/Sentimental-Analyzer-Pro.git/issues).
+If you find a bug or have a feature request, please create an issue in the [issue tracker](https://github.com/csc510-group11/Sentimental-Analyzer-Pro/issues).
 
 ## Style Guide
 
